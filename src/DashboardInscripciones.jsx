@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
-  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  LineChart, Line
+  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
 import { 
-  Upload, Users, Clock, CheckCircle, XCircle, AlertCircle, 
-  Filter, Search, Calendar, Moon, Sun, Sunset, FileText, Info, BookOpen, UserCheck, FileSpreadsheet
+  Upload, Users, Filter, Search, Info, 
+  UserCheck, FileSpreadsheet, Trash2, Save, Download, Printer 
 } from 'lucide-react';
 
 // --- Utilitarios para procesamiento de CSV ---
@@ -16,7 +15,6 @@ const parseCSV = (text) => {
   let currentString = '';
   let inQuotes = false;
   
-  // Detectar separador (coma o punto y coma)
   const firstLine = text.split('\n')[0];
   const separator = firstLine.includes(';') ? ';' : ',';
 
@@ -56,20 +54,15 @@ const parseCSV = (text) => {
 // --- Lógica de Inferencia de Género ---
 const inferGender = (fullName) => {
   if (!fullName) return 'Desconocido';
-  
-  // Asume formato "Apellido, Nombre"
   const parts = fullName.split(',');
   if (parts.length < 2) return 'Desconocido';
   
-  // Tomar el primer nombre, quitar espacios extra y convertir a mayúsculas
   const firstName = parts[1].trim().split(' ')[0].toUpperCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Quitar acentos
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
 
-  // Excepciones comunes de nombres masculinos que terminan en A
   const maleExceptions = ['BAUTISTA', 'LUCA', 'NICOLA', 'SANTINO'];
   if (maleExceptions.includes(firstName)) return 'Masculino';
 
-  // Excepciones comunes de nombres femeninos que NO terminan en A
   const femaleExceptions = [
     'SOL', 'BELEN', 'RAQUEL', 'RUTH', 'ESTHER', 'ABIGAIL', 'JAZMIN', 
     'LOURDES', 'CARMEN', 'DOLORES', 'MERCEDES', 'PILAR', 'MONSERRAT', 
@@ -78,9 +71,7 @@ const inferGender = (fullName) => {
   ];
   if (femaleExceptions.includes(firstName)) return 'Femenino';
 
-  // Regla general: Si termina en A es Femenino, si no es Masculino
   if (firstName.endsWith('A')) return 'Femenino';
-  
   return 'Masculino';
 };
 
@@ -104,8 +95,8 @@ const COLORS = {
   Aceptada: '#10B981',
   Pendiente: '#F59E0B',
   Rechazada: '#EF4444',
-  Femenino: '#EC4899', // Rosa
-  Masculino: '#3B82F6' // Azul
+  Femenino: '#EC4899', 
+  Masculino: '#3B82F6'
 };
 
 const Card = ({ children, className = "" }) => (
@@ -144,21 +135,43 @@ const OfferBadge = ({ type }) => {
 export default function DashboardInscripciones() {
   const [rawData, setRawData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  
+  // Filtros
   const [filterTurno, setFilterTurno] = useState('Todos');
   const [filterActividad, setFilterActividad] = useState('Todas');
   const [filterEstado, setFilterEstado] = useState('Todos');
   const [filterTipoOferta, setFilterTipoOferta] = useState('Todos');
   const [filterGenero, setFilterGenero] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Estado de datos
   const [isSampleData, setIsSampleData] = useState(true);
   const [fileName, setFileName] = useState('');
+  const [storageUsed, setStorageUsed] = useState(false);
 
-  // Carga inicial de datos de muestra
+  // --- EFECTO DE INICIO: Carga desde LocalStorage ---
   useEffect(() => {
-    processCSV(SAMPLE_CSV, true);
+    const storedData = localStorage.getItem('dashboard_data');
+    const storedName = localStorage.getItem('dashboard_filename');
+
+    if (storedData) {
+      try {
+        const parsedData = JSON.parse(storedData);
+        setRawData(parsedData);
+        setFileName(storedName || 'Archivo Guardado');
+        setIsSampleData(false);
+        setStorageUsed(true);
+      } catch (e) {
+        console.error("Error al recuperar datos:", e);
+        processCSV(SAMPLE_CSV, true, false);
+      }
+    } else {
+      processCSV(SAMPLE_CSV, true, false);
+    }
   }, []);
 
-  const processCSV = (csvText, isSample = false) => {
+  // Función principal de procesamiento
+  const processCSV = (csvText, isSample = false, persist = false, newFileName = '') => {
     try {
       const parsed = parseCSV(csvText);
       const headers = parsed[0];
@@ -174,27 +187,23 @@ export default function DashboardInscripciones() {
           else if (key.includes('Comisión')) key = 'comision';
           else if (key.includes('Estado')) key = 'estado';
           else if (key.includes('Actividad')) key = 'actividad';
-          
           item[key] = row[index];
         });
 
-        // Lógica de detección de Turno
+        // Lógica de Negocio
         let turno = 'Desconocido';
         const comision = item.comision || '';
-        if (comision.includes('- TM') || comision.includes('-TM') || comision.endsWith('TM')) turno = 'TM';
-        else if (comision.includes('- TT') || comision.includes('-TT') || comision.endsWith('TT')) turno = 'TT';
-        else if (comision.includes('- TN') || comision.includes('-TN') || comision.endsWith('TN')) turno = 'TN';
+        if (comision.includes('TM')) turno = 'TM';
+        else if (comision.includes('TT')) turno = 'TT';
+        else if (comision.includes('TN')) turno = 'TN';
         
-        // Lógica de detección de Tipo de Oferta
         let tipoOferta = 'Otro';
         const rawActividad = item.actividad || '';
         if (rawActividad.includes('(CL_')) tipoOferta = 'Capacitación Laboral';
         else if (rawActividad.includes('(CT_')) tipoOferta = 'Curso';
         else if (rawActividad.includes('(TR_')) tipoOferta = 'Trayecto';
 
-        // Lógica de detección de Género
         item.genero = inferGender(item.alumno);
-
         item.tipoOferta = tipoOferta;
         item.turno = turno;
         item.actividadSimple = item.actividad ? item.actividad.replace(/^\([A-Z0-9_]+\)\s*/, '') : 'Sin Actividad';
@@ -202,61 +211,104 @@ export default function DashboardInscripciones() {
         return item;
       }).filter(item => item.alumno);
 
+      // Actualizar Estado
       setRawData(processed);
       setIsSampleData(isSample);
-      if (isSample) setFileName('Datos de Ejemplo');
+      
+      if (isSample) {
+        setFileName('Datos de Ejemplo');
+        setStorageUsed(false);
+      } else {
+        setFileName(newFileName);
+        // GUARDAR EN LOCALSTORAGE
+        if (persist) {
+          try {
+            localStorage.setItem('dashboard_data', JSON.stringify(processed));
+            localStorage.setItem('dashboard_filename', newFileName);
+            setStorageUsed(true);
+          } catch (e) {
+            alert("El archivo es demasiado grande para guardarse permanentemente. Se visualizará solo esta vez.");
+          }
+        }
+      }
+
     } catch (e) {
       console.error("Error procesando CSV", e);
-      alert("Error al procesar el archivo. Asegúrate de que sea un CSV válido.");
+      alert("Error al procesar el archivo.");
     }
   };
 
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setFileName(file.name);
       const reader = new FileReader();
-      reader.onload = (e) => processCSV(e.target.result, false);
+      reader.onload = (e) => processCSV(e.target.result, false, true, file.name);
       reader.readAsText(file);
     }
   };
 
-  // Filtrado de datos
+  const clearStorage = () => {
+    if (window.confirm("¿Estás seguro de borrar los datos guardados y volver al ejemplo?")) {
+      localStorage.removeItem('dashboard_data');
+      localStorage.removeItem('dashboard_filename');
+      setStorageUsed(false);
+      processCSV(SAMPLE_CSV, true, false);
+    }
+  };
+
+  // --- Funciones de Exportación ---
+  const handleDownloadCSV = () => {
+    // Definir cabeceras
+    const headers = ['Alumno', 'Género', 'DNI', 'Turno', 'Oferta', 'Actividad', 'Estado'];
+    
+    // Convertir datos filtrados a CSV
+    const csvContent = [
+      headers.join(';'),
+      ...filteredData.map(row => [
+        `"${row.alumno || ''}"`,
+        row.genero,
+        row.dni,
+        row.turno,
+        row.tipoOferta,
+        `"${row.actividadSimple || ''}"`,
+        row.estado
+      ].join(';'))
+    ].join('\n');
+
+    // Agregar BOM para que Excel abra UTF-8 correctamente
+    const bom = '\uFEFF';
+    const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+    
+    // Crear link de descarga
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `listado_alumnos_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  // Filtrado de datos (Igual que antes)
   useEffect(() => {
     let result = rawData;
-
-    if (filterTurno !== 'Todos') {
-      result = result.filter(item => item.turno === filterTurno);
-    }
-
-    if (filterEstado !== 'Todos') {
-      result = result.filter(item => item.estado && item.estado.trim() === filterEstado);
-    }
-    
-    if (filterTipoOferta !== 'Todos') {
-      result = result.filter(item => item.tipoOferta === filterTipoOferta);
-    }
-    
-    if (filterGenero !== 'Todos') {
-      result = result.filter(item => item.genero === filterGenero);
-    }
-
-    if (filterActividad !== 'Todas') {
-      result = result.filter(item => item.actividadSimple === filterActividad);
-    }
-
+    if (filterTurno !== 'Todos') result = result.filter(item => item.turno === filterTurno);
+    if (filterEstado !== 'Todos') result = result.filter(item => item.estado && item.estado.trim() === filterEstado);
+    if (filterTipoOferta !== 'Todos') result = result.filter(item => item.tipoOferta === filterTipoOferta);
+    if (filterGenero !== 'Todos') result = result.filter(item => item.genero === filterGenero);
+    if (filterActividad !== 'Todas') result = result.filter(item => item.actividadSimple === filterActividad);
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(item => 
-        (item.alumno && item.alumno.toLowerCase().includes(term)) ||
-        (item.dni && item.dni.toLowerCase().includes(term))
-      );
+      result = result.filter(item => (item.alumno && item.alumno.toLowerCase().includes(term)) || (item.dni && item.dni.includes(term)));
     }
-
     setFilteredData(result);
   }, [rawData, filterTurno, filterEstado, filterActividad, filterTipoOferta, filterGenero, searchTerm]);
 
-  // Cálculos para KPIs y Gráficos
+  // Cálculos
   const stats = useMemo(() => {
     const total = filteredData.length;
     const porTurno = { TM: 0, TT: 0, TN: 0, Desconocido: 0 };
@@ -265,71 +317,45 @@ export default function DashboardInscripciones() {
     const porActividad = {};
 
     filteredData.forEach(item => {
-      // Turno
-      if (porTurno[item.turno] !== undefined) porTurno[item.turno]++;
-      else porTurno.Desconocido++;
-
-      // Estado
+      if (porTurno[item.turno] !== undefined) porTurno[item.turno]++; else porTurno.Desconocido++;
       const estado = item.estado ? item.estado.trim() : 'Desconocido';
       if (porEstado[estado] !== undefined) porEstado[estado]++;
-      
-      // Genero
-      if (porGenero[item.genero] !== undefined) porGenero[item.genero]++;
-      else porGenero.Desconocido++;
-
-      // Actividad
+      if (porGenero[item.genero] !== undefined) porGenero[item.genero]++; else porGenero.Desconocido++;
       const act = item.actividadSimple;
       porActividad[act] = (porActividad[act] || 0) + 1;
     });
 
-    const chartDataTurno = [
-      { name: 'Mañana (TM)', value: porTurno.TM, key: 'TM' },
-      { name: 'Tarde (TT)', value: porTurno.TT, key: 'TT' },
-      { name: 'Noche (TN)', value: porTurno.TN, key: 'TN' },
-    ].filter(d => d.value > 0);
-
-    const chartDataEstado = [
-      { name: 'Aceptada', value: porEstado.Aceptada, color: COLORS.Aceptada },
-      { name: 'Pendiente', value: porEstado.Pendiente, color: COLORS.Pendiente },
-      { name: 'Rechazada', value: porEstado.Rechazada, color: COLORS.Rechazada },
-    ].filter(d => d.value > 0);
-    
-    const chartDataGenero = [
-      { name: 'Femenino', value: porGenero.Femenino, key: 'Femenino' },
-      { name: 'Masculino', value: porGenero.Masculino, key: 'Masculino' },
-    ].filter(d => d.value > 0);
-
-    const chartDataActividad = Object.keys(porActividad).map(key => ({
-      name: key.length > 20 ? key.substring(0, 20) + '...' : key,
-      fullName: key,
-      value: porActividad[key]
-    })).sort((a, b) => b.value - a.value);
-
-    return { total, porTurno, porEstado, porGenero, chartDataTurno, chartDataEstado, chartDataActividad, chartDataGenero };
+    return { 
+      total, porTurno, porEstado, porGenero, 
+      chartDataTurno: [{ name: 'TM', value: porTurno.TM, key: 'TM' }, { name: 'TT', value: porTurno.TT, key: 'TT' }, { name: 'TN', value: porTurno.TN, key: 'TN' }].filter(d => d.value > 0),
+      chartDataEstado: [{ name: 'Aceptada', value: porEstado.Aceptada, color: COLORS.Aceptada }, { name: 'Pendiente', value: porEstado.Pendiente, color: COLORS.Pendiente }, { name: 'Rechazada', value: porEstado.Rechazada, color: COLORS.Rechazada }].filter(d => d.value > 0),
+      chartDataGenero: [{ name: 'Femenino', value: porGenero.Femenino, key: 'Femenino' }, { name: 'Masculino', value: porGenero.Masculino, key: 'Masculino' }].filter(d => d.value > 0),
+      chartDataActividad: Object.keys(porActividad).map(key => ({ name: key.substring(0, 20) + '...', fullName: key, value: porActividad[key] })).sort((a, b) => b.value - a.value)
+    };
   }, [filteredData]);
 
-  const uniqueActivities = useMemo(() => {
-    return [...new Set(rawData.map(item => item.actividadSimple))].sort();
-  }, [rawData]);
-
-  const uniqueEstados = useMemo(() => {
-    return [...new Set(rawData.map(item => item.estado ? item.estado.trim() : null).filter(Boolean))].sort();
-  }, [rawData]);
+  const uniqueActivities = useMemo(() => [...new Set(rawData.map(item => item.actividadSimple))].sort(), [rawData]);
+  const uniqueEstados = useMemo(() => [...new Set(rawData.map(item => item.estado ? item.estado.trim() : null).filter(Boolean))].sort(), [rawData]);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-4 md:p-8">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-4 md:p-8 print:bg-white print:p-0">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 print:mb-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
-            <Users className="w-8 h-8 text-blue-600" />
+            <Users className="w-8 h-8 text-blue-600 print:hidden" />
             Tablero de Inscripciones (2026)
           </h1>
-          <p className="text-slate-500 mt-1">Análisis Demográfico y de Ofertas</p>
+          <p className="text-slate-500 mt-1 print:hidden">Análisis Demográfico y de Ofertas</p>
         </div>
         
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex items-center gap-3 print:hidden">
+           {storageUsed && (
+             <button onClick={clearStorage} className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-medium">
+               <Trash2 className="w-4 h-4" /> Borrar Datos
+             </button>
+           )}
            <label className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition shadow-md">
             <Upload className="w-4 h-4" />
             <span>Subir CSV Completo</span>
@@ -339,367 +365,155 @@ export default function DashboardInscripciones() {
       </div>
 
       {isSampleData ? (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex items-start gap-3">
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex items-start gap-3 print:hidden">
           <Info className="w-5 h-5 text-amber-600 mt-0.5" />
           <div>
             <h4 className="font-semibold text-amber-800">Modo de Demostración</h4>
-            <p className="text-sm text-amber-700">
-              Actualmente estás viendo <strong>datos de ejemplo</strong>. Para ver los datos de hoy, sube el archivo actualizado.
-            </p>
+            <p className="text-sm text-amber-700">Viendo datos de ejemplo. Sube tu archivo para ver datos reales.</p>
           </div>
         </div>
       ) : (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3">
-          <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5" />
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3 print:hidden">
+          {storageUsed ? <Save className="w-5 h-5 text-blue-600 mt-0.5" /> : <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5" />}
           <div>
-            <h4 className="font-semibold text-blue-800">Archivo Cargado: {fileName}</h4>
+            <h4 className="font-semibold text-blue-800">
+              {storageUsed ? 'Datos Recuperados de Memoria' : 'Archivo Cargado'}
+            </h4>
             <p className="text-sm text-blue-700">
-              Estás visualizando el análisis del archivo que acabas de subir.
+              Archivo: <strong>{fileName}</strong>. {storageUsed ? 'Estos datos se guardaron automáticamente.' : 'Sube un nuevo archivo para actualizar.'}
             </p>
           </div>
         </div>
       )}
 
-      {/* Stats Cards Row 1: Demographics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+      {/* KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 print:grid-cols-3 print:gap-2">
         <Card className="p-4 border-l-4 border-slate-500">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-slate-100 rounded-full text-slate-600">
-              <Users className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Total Inscriptos</p>
-              <p className="text-2xl font-bold">{stats.total}</p>
-            </div>
+            <div className="p-3 bg-slate-100 rounded-full text-slate-600 print:hidden"><Users className="w-6 h-6" /></div>
+            <div><p className="text-sm text-slate-500">Total Inscriptos</p><p className="text-2xl font-bold">{stats.total}</p></div>
           </div>
         </Card>
-
-        <Card className="p-4 border-l-4 border-pink-500">
+        <Card className="p-4 border-l-4 border-pink-500 print:border-slate-200">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-pink-50 rounded-full text-pink-600">
-              <UserCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Mujeres (Est.)</p>
-              <p className="text-2xl font-bold">{stats.porGenero.Femenino}</p>
-            </div>
+            <div className="p-3 bg-pink-50 rounded-full text-pink-600 print:hidden"><UserCheck className="w-6 h-6" /></div>
+            <div><p className="text-sm text-slate-500">Mujeres (Est.)</p><p className="text-2xl font-bold">{stats.porGenero.Femenino}</p></div>
           </div>
         </Card>
-        
-        <Card className="p-4 border-l-4 border-blue-500">
+        <Card className="p-4 border-l-4 border-blue-500 print:border-slate-200">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-50 rounded-full text-blue-600">
-              <UserCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Hombres (Est.)</p>
-              <p className="text-2xl font-bold">{stats.porGenero.Masculino}</p>
-            </div>
+            <div className="p-3 bg-blue-50 rounded-full text-blue-600 print:hidden"><UserCheck className="w-6 h-6" /></div>
+            <div><p className="text-sm text-slate-500">Hombres (Est.)</p><p className="text-2xl font-bold">{stats.porGenero.Masculino}</p></div>
           </div>
         </Card>
       </div>
 
-      {/* Stats Cards Row 2: Turnos */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card className="p-4 border-l-4 border-amber-500">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-amber-50 rounded-full text-amber-600">
-              <Sun className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Turno Mañana (TM)</p>
-              <p className="text-2xl font-bold">{stats.porTurno.TM}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4 border-l-4 border-orange-500">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-orange-50 rounded-full text-orange-600">
-              <Sunset className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Turno Tarde (TT)</p>
-              <p className="text-2xl font-bold">{stats.porTurno.TT}</p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4 border-l-4 border-indigo-500">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-indigo-50 rounded-full text-indigo-600">
-              <Moon className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Turno Noche (TN)</p>
-              <p className="text-2xl font-bold">{stats.porTurno.TN}</p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Card className="p-4 mb-8 sticky top-0 z-20 shadow-md">
+      {/* Filtros */}
+      <Card className="p-4 mb-8 sticky top-0 z-20 shadow-md print:hidden">
         <div className="flex flex-col md:flex-row gap-4 items-center flex-wrap">
-          <div className="flex items-center gap-2 text-slate-600">
-            <Filter className="w-4 h-4" />
-            <span className="font-semibold text-sm">Filtros:</span>
-          </div>
-          
-          <select 
-            value={filterGenero}
-            onChange={(e) => setFilterGenero(e.target.value)}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          >
-            <option value="Todos">Todos los Géneros</option>
-            <option value="Femenino">Femenino</option>
-            <option value="Masculino">Masculino</option>
+          <div className="flex items-center gap-2 text-slate-600"><Filter className="w-4 h-4" /><span className="font-semibold text-sm">Filtros:</span></div>
+          <select value={filterGenero} onChange={(e) => setFilterGenero(e.target.value)} className="px-3 py-2 border rounded-md text-sm bg-white">
+            <option value="Todos">Género: Todos</option><option value="Femenino">Femenino</option><option value="Masculino">Masculino</option>
           </select>
-
-          <select 
-            value={filterTipoOferta}
-            onChange={(e) => setFilterTipoOferta(e.target.value)}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          >
-            <option value="Todos">Todas las Ofertas</option>
-            <option value="Capacitación Laboral">Capacitación Laboral (CL)</option>
-            <option value="Curso">Curso (CT)</option>
-            <option value="Trayecto">Trayecto (TR)</option>
+          <select value={filterTipoOferta} onChange={(e) => setFilterTipoOferta(e.target.value)} className="px-3 py-2 border rounded-md text-sm bg-white">
+            <option value="Todos">Oferta: Todas</option><option value="Capacitación Laboral">Cap. Laboral</option><option value="Curso">Curso</option><option value="Trayecto">Trayecto</option>
           </select>
-
-          <select 
-            value={filterTurno}
-            onChange={(e) => setFilterTurno(e.target.value)}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          >
-            <option value="Todos">Todos los Turnos</option>
-            <option value="TM">Mañana (TM)</option>
-            <option value="TT">Tarde (TT)</option>
-            <option value="TN">Noche (TN)</option>
+          <select value={filterTurno} onChange={(e) => setFilterTurno(e.target.value)} className="px-3 py-2 border rounded-md text-sm bg-white">
+            <option value="Todos">Turno: Todos</option><option value="TM">Mañana</option><option value="TT">Tarde</option><option value="TN">Noche</option>
           </select>
-
-          <select 
-            value={filterEstado}
-            onChange={(e) => setFilterEstado(e.target.value)}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          >
-            <option value="Todos">Todos los Estados</option>
-            {uniqueEstados.map(est => (
-              <option key={est} value={est}>{est}</option>
-            ))}
+          <select value={filterEstado} onChange={(e) => setFilterEstado(e.target.value)} className="px-3 py-2 border rounded-md text-sm bg-white">
+            <option value="Todos">Estado: Todos</option>
+            {uniqueEstados.map(est => <option key={est} value={est}>{est}</option>)}
           </select>
-
-          <select 
-            value={filterActividad}
-            onChange={(e) => setFilterActividad(e.target.value)}
-            className="px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white max-w-xs truncate"
-          >
-            <option value="Todas">Todas las Actividades</option>
-            {uniqueActivities.map(act => (
-              <option key={act} value={act}>{act}</option>
-            ))}
+          <select value={filterActividad} onChange={(e) => setFilterActividad(e.target.value)} className="px-3 py-2 border rounded-md text-sm bg-white max-w-xs truncate">
+            <option value="Todas">Actividad: Todas</option>
+            {uniqueActivities.map(act => <option key={act} value={act}>{act}</option>)}
           </select>
-
           <div className="relative flex-1 w-full min-w-[200px]">
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-            <input 
-              type="text" 
-              placeholder="Buscar por alumno o DNI..." 
-              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <input type="text" placeholder="Buscar..." className="w-full pl-10 pr-4 py-2 border rounded-md text-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
           </div>
         </div>
       </Card>
+      
+      {/* Resumen de Filtros para Impresión */}
+      <div className="hidden print:block mb-4 text-sm text-slate-600 border-b pb-2">
+        <strong>Filtros aplicados:</strong> Actividad: {filterActividad} | Turno: {filterTurno} | Estado: {filterEstado} | Género: {filterGenero}
+      </div>
 
-      {/* Main Charts Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        
-        {/* Distribución por Género */}
+      {/* Gráficos (Ocultos al imprimir) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 print:hidden">
         <Card className="p-6 col-span-1">
-          <h3 className="text-lg font-semibold mb-4 text-slate-800">Género (Estimado)</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats.chartDataGenero}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={70}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {stats.chartDataGenero.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[entry.key]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend verticalAlign="bottom" height={36}/>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          <h3 className="text-lg font-semibold mb-4 text-slate-800">Género</h3>
+          <div className="h-64"><ResponsiveContainer><PieChart><Pie data={stats.chartDataGenero} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">{stats.chartDataGenero.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.key]} />)}</Pie><Tooltip /><Legend /></PieChart></ResponsiveContainer></div>
         </Card>
-
-        {/* Distribución por Turno */}
         <Card className="p-6 col-span-1">
           <h3 className="text-lg font-semibold mb-4 text-slate-800">Turnos</h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats.chartDataTurno}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={50}
-                  outerRadius={70}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {stats.chartDataTurno.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[entry.key]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend verticalAlign="bottom" height={36}/>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          <div className="h-64"><ResponsiveContainer><PieChart><Pie data={stats.chartDataTurno} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">{stats.chartDataTurno.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.key]} />)}</Pie><Tooltip /><Legend /></PieChart></ResponsiveContainer></div>
         </Card>
-
-         {/* Estado de Inscripciones */}
         <Card className="p-6 col-span-1">
           <h3 className="text-lg font-semibold mb-4 text-slate-800">Estados</h3>
-          <div className="h-64">
-             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.chartDataEstado} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
-                <XAxis type="number" hide />
-                <YAxis dataKey="name" type="category" width={80} tick={{fontSize: 12}} />
-                <Tooltip cursor={{fill: 'transparent'}} />
-                <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                  {stats.chartDataEstado.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <div className="h-64"><ResponsiveContainer><BarChart data={stats.chartDataEstado} layout="vertical"><CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} /><XAxis type="number" hide /><YAxis dataKey="name" type="category" width={80} tick={{fontSize: 12}} /><Tooltip /><Bar dataKey="value" radius={[0, 4, 4, 0]}>{stats.chartDataEstado.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}</Bar></BarChart></ResponsiveContainer></div>
         </Card>
-
-        {/* Actividades Top */}
         <Card className="p-6 col-span-1">
           <h3 className="text-lg font-semibold mb-4 text-slate-800">Top Actividades</h3>
-          <div className="h-64 overflow-y-auto">
-             <ul className="space-y-3">
-               {stats.chartDataActividad.slice(0, 5).map((act, idx) => (
-                 <li key={idx} className="flex items-center justify-between p-2 hover:bg-slate-50 rounded">
-                   <div className="flex items-center gap-2 overflow-hidden">
-                      <span className="w-5 h-5 flex items-center justify-center bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full flex-shrink-0">
-                        {idx + 1}
-                      </span>
-                      <span className="text-xs font-medium truncate" title={act.fullName}>{act.fullName}</span>
-                   </div>
-                   <span className="font-bold text-slate-700 text-sm">{act.value}</span>
-                 </li>
-               ))}
-             </ul>
-          </div>
+          <div className="h-64 overflow-y-auto"><ul className="space-y-3">{stats.chartDataActividad.slice(0, 5).map((act, idx) => <li key={idx} className="flex justify-between p-2 hover:bg-slate-50 rounded"><span className="text-xs truncate w-3/4" title={act.fullName}>{idx + 1}. {act.fullName}</span><span className="font-bold text-sm">{act.value}</span></li>)}</ul></div>
         </Card>
       </div>
 
-      {/* Actividad Chart Full Width */}
-      <Card className="p-6 mb-8">
-        <h3 className="text-lg font-semibold mb-6 text-slate-800">Distribución de Alumnos por Actividad</h3>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={stats.chartDataActividad} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis 
-                dataKey="name" 
-                interval={0} 
-                angle={-45} 
-                textAnchor="end" 
-                height={70} 
-                tick={{fontSize: 10}}
-              />
-              <YAxis />
-              <Tooltip 
-                content={({ active, payload, label }) => {
-                  if (active && payload && payload.length) {
-                    return (
-                      <div className="bg-white p-3 border shadow-lg rounded text-sm">
-                        <p className="font-bold">{payload[0].payload.fullName}</p>
-                        <p className="text-blue-600">Alumnos: {payload[0].value}</p>
-                      </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-              <Bar dataKey="value" fill="#4F46E5" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <Card className="p-6 mb-8 print:hidden">
+        <h3 className="text-lg font-semibold mb-6 text-slate-800">Distribución Completa por Actividad</h3>
+        <div className="h-80"><ResponsiveContainer><BarChart data={stats.chartDataActividad} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" height={70} tick={{fontSize: 10}} /><YAxis /><Tooltip /><Bar dataKey="value" fill="#4F46E5" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></div>
       </Card>
 
-      {/* Data Table */}
-      <Card className="overflow-hidden">
-        <div className="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-          <h3 className="font-bold text-slate-700">Detalle de Inscriptos ({filteredData.length})</h3>
+      <Card className="overflow-hidden print:shadow-none print:border-none">
+        <div className="p-4 border-b bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-4 print:bg-white print:border-none print:p-0 print:mb-4">
+          <h3 className="font-bold text-slate-700">Listado de Alumnos ({filteredData.length})</h3>
+          <div className="flex gap-2 print:hidden">
+            <button 
+              onClick={handlePrint}
+              className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-sm font-medium transition"
+            >
+              <Printer className="w-4 h-4" /> Imprimir Listado
+            </button>
+            <button 
+              onClick={handleDownloadCSV}
+              className="flex items-center gap-2 px-3 py-1.5 bg-green-100 hover:bg-green-200 text-green-700 rounded-md text-sm font-medium transition"
+            >
+              <Download className="w-4 h-4" /> Exportar CSV
+            </button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-100 text-slate-600 uppercase text-xs font-semibold">
+            <thead className="bg-slate-100 uppercase text-xs print:bg-white print:border-b-2 print:border-black">
               <tr>
-                <th className="p-4">Alumno</th>
-                <th className="p-4">Género (Est.)</th>
-                <th className="p-4">Identificación</th>
-                <th className="p-4">Turno</th>
-                <th className="p-4">Tipo Oferta</th>
-                <th className="p-4">Actividad</th>
-                <th className="p-4">Estado</th>
+                <th className="p-4 print:p-2">Alumno</th>
+                <th className="p-4 print:p-2">Género</th>
+                <th className="p-4 print:p-2">DNI</th>
+                <th className="p-4 print:p-2">Turno</th>
+                <th className="p-4 print:p-2">Oferta</th>
+                <th className="p-4 print:p-2">Actividad</th>
+                <th className="p-4 print:p-2">Estado</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
-              {filteredData.length > 0 ? (
-                filteredData.map((row, index) => (
-                  <tr key={index} className="hover:bg-slate-50 transition">
-                    <td className="p-4 font-medium text-slate-800">{row.alumno}</td>
-                    <td className="p-4">
-                       <Badge type={row.genero}>{row.genero}</Badge>
-                    </td>
-                    <td className="p-4 text-slate-500">{row.dni}</td>
-                    <td className="p-4">
-                      <Badge type={row.turno}>{row.turno}</Badge>
-                    </td>
-                    <td className="p-4">
-                       <OfferBadge type={row.tipoOferta} />
-                    </td>
-                    <td className="p-4 text-slate-600 truncate max-w-[200px]" title={row.actividadSimple}>
-                      {row.actividadSimple}
-                    </td>
-                    <td className="p-4">
-                      <Badge type={row.estado}>{row.estado}</Badge>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="7" className="p-8 text-center text-slate-500">
-                    No se encontraron resultados con los filtros actuales.
-                  </td>
+            <tbody className="divide-y">
+              {filteredData.map((row, i) => (
+                <tr key={i} className="hover:bg-slate-50 print:hover:bg-transparent">
+                  <td className="p-4 font-medium print:p-2">{row.alumno}</td>
+                  <td className="p-4 print:p-2"><Badge type={row.genero}>{row.genero}</Badge></td>
+                  <td className="p-4 text-slate-500 print:p-2">{row.dni}</td>
+                  <td className="p-4 print:p-2"><Badge type={row.turno}>{row.turno}</Badge></td>
+                  <td className="p-4 print:p-2"><OfferBadge type={row.tipoOferta} /></td>
+                  <td className="p-4 truncate max-w-[200px] print:max-w-none print:p-2 print:whitespace-normal" title={row.actividadSimple}>{row.actividadSimple}</td>
+                  <td className="p-4 print:p-2"><Badge type={row.estado}>{row.estado}</Badge></td>
                 </tr>
-              )}
+              ))}
             </tbody>
           </table>
         </div>
       </Card>
-      
-      <div className="mt-4 text-center text-xs text-slate-400">
-        Sistema de Visualización de Inscripciones v1.0
-      </div>
+      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.2 - Exportación Habilitada</div>
     </div>
   );
 }
