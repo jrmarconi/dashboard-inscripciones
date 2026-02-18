@@ -4,11 +4,18 @@ import {
 } from 'recharts';
 import { 
   Upload, Users, Filter, Search, Info, 
-  UserCheck, FileSpreadsheet, Trash2, Save, Download, Printer 
+  UserCheck, FileSpreadsheet, Trash2, Save, Download, Printer, Cloud, RefreshCw, AlertTriangle
 } from 'lucide-react';
 
-// --- Utilitarios para procesamiento de CSV ---
+// ==============================================================================
+// CONFIGURACIÓN DE ORIGEN DE DATOS
+// ==============================================================================
+// PEGA AQUÍ TU ENLACE DE GOOGLE SHEETS (Publicado como CSV)
+// Si lo dejas vacío "", el sistema funcionará modo manual/local como antes.
+const DATA_SOURCE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-4w1Lcx6FefPFWYVxlU_pMxGx5j_r4xENfPmhuiL2Y6qLRggLixxcHFudlXl4BZlBrELxln97B7Hu/pub?gid=1856440278&single=true&output=csv"; 
+// ==============================================================================
 
+// --- Utilitarios para procesamiento de CSV ---
 const parseCSV = (text) => {
   const rows = [];
   let currentRow = [];
@@ -144,13 +151,39 @@ export default function DashboardInscripciones() {
   const [filterGenero, setFilterGenero] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Estado de datos
-  const [isSampleData, setIsSampleData] = useState(true);
+  // Estado de datos y fuente
+  const [dataSource, setDataSource] = useState('sample'); // 'sample', 'local', 'cloud', 'manual'
   const [fileName, setFileName] = useState('');
-  const [storageUsed, setStorageUsed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
 
-  // --- EFECTO DE INICIO: Carga desde LocalStorage ---
+  // --- EFECTO DE INICIO: Prioridad Nube -> Local -> Ejemplo ---
   useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    setFetchError(null);
+
+    // 1. Intentar cargar desde URL Nube (si está configurada)
+    if (DATA_SOURCE_URL && DATA_SOURCE_URL.trim() !== "") {
+      try {
+        const response = await fetch(DATA_SOURCE_URL);
+        if (!response.ok) throw new Error('Error de conexión con la hoja de cálculo');
+        const text = await response.text();
+        processCSV(text, false, false, "Datos en la Nube (Auto)");
+        setDataSource('cloud');
+        setIsLoading(false);
+        return; // Éxito con nube
+      } catch (error) {
+        console.error("Fallo carga nube:", error);
+        setFetchError("No se pudo conectar a Google Sheets. Mostrando datos locales.");
+        // Si falla, seguimos al paso 2
+      }
+    }
+
+    // 2. Intentar LocalStorage (Si falló la nube o no hay URL)
     const storedData = localStorage.getItem('dashboard_data');
     const storedName = localStorage.getItem('dashboard_filename');
 
@@ -159,16 +192,16 @@ export default function DashboardInscripciones() {
         const parsedData = JSON.parse(storedData);
         setRawData(parsedData);
         setFileName(storedName || 'Archivo Guardado');
-        setIsSampleData(false);
-        setStorageUsed(true);
+        setDataSource('local');
       } catch (e) {
-        console.error("Error al recuperar datos:", e);
         processCSV(SAMPLE_CSV, true, false);
       }
     } else {
+      // 3. Fallback a Ejemplo
       processCSV(SAMPLE_CSV, true, false);
     }
-  }, []);
+    setIsLoading(false);
+  };
 
   // Función principal de procesamiento
   const processCSV = (csvText, isSample = false, persist = false, newFileName = '') => {
@@ -213,21 +246,20 @@ export default function DashboardInscripciones() {
 
       // Actualizar Estado
       setRawData(processed);
-      setIsSampleData(isSample);
       
       if (isSample) {
         setFileName('Datos de Ejemplo');
-        setStorageUsed(false);
+        setDataSource('sample');
       } else {
         setFileName(newFileName);
-        // GUARDAR EN LOCALSTORAGE
-        if (persist) {
+        
+        if (persist) { // Solo si es subida manual guardamos en localstorage
           try {
             localStorage.setItem('dashboard_data', JSON.stringify(processed));
             localStorage.setItem('dashboard_filename', newFileName);
-            setStorageUsed(true);
+            setDataSource('local');
           } catch (e) {
-            alert("El archivo es demasiado grande para guardarse permanentemente. Se visualizará solo esta vez.");
+            alert("El archivo es demasiado grande para guardarse permanentemente.");
           }
         }
       }
@@ -238,48 +270,35 @@ export default function DashboardInscripciones() {
     }
   };
 
-  const handleFileUpload = (event) => {
+  const handleManualUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
+      setDataSource('manual');
       const reader = new FileReader();
-      reader.onload = (e) => processCSV(e.target.result, false, true, file.name);
+      reader.onload = (e) => processCSV(e.target.result, false, true, file.name); // Guardamos manuales en local
       reader.readAsText(file);
     }
   };
 
   const clearStorage = () => {
-    if (window.confirm("¿Estás seguro de borrar los datos guardados y volver al ejemplo?")) {
+    if (window.confirm("¿Estás seguro de borrar los datos locales? Si tienes un enlace de Google Sheets configurado, se intentará recargar.")) {
       localStorage.removeItem('dashboard_data');
       localStorage.removeItem('dashboard_filename');
-      setStorageUsed(false);
-      processCSV(SAMPLE_CSV, true, false);
+      loadData(); // Intentar recargar nube o ejemplo
     }
   };
 
   // --- Funciones de Exportación ---
   const handleDownloadCSV = () => {
-    // Definir cabeceras
     const headers = ['Alumno', 'Género', 'DNI', 'Turno', 'Oferta', 'Actividad', 'Estado'];
-    
-    // Convertir datos filtrados a CSV
     const csvContent = [
       headers.join(';'),
       ...filteredData.map(row => [
-        `"${row.alumno || ''}"`,
-        row.genero,
-        row.dni,
-        row.turno,
-        row.tipoOferta,
-        `"${row.actividadSimple || ''}"`,
-        row.estado
+        `"${row.alumno || ''}"`, row.genero, row.dni, row.turno, row.tipoOferta, `"${row.actividadSimple || ''}"`, row.estado
       ].join(';'))
     ].join('\n');
-
-    // Agregar BOM para que Excel abra UTF-8 correctamente
     const bom = '\uFEFF';
     const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
-    
-    // Crear link de descarga
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -289,11 +308,9 @@ export default function DashboardInscripciones() {
     document.body.removeChild(link);
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => window.print();
 
-  // Filtrado de datos (Igual que antes)
+  // Filtrado de datos
   useEffect(() => {
     let result = rawData;
     if (filterTurno !== 'Todos') result = result.filter(item => item.turno === filterTurno);
@@ -351,39 +368,71 @@ export default function DashboardInscripciones() {
         </div>
         
         <div className="flex items-center gap-3 print:hidden">
-           {storageUsed && (
+          {/* Botón de Refrescar Nube */}
+          {DATA_SOURCE_URL && (
+            <button 
+              onClick={loadData}
+              disabled={isLoading}
+              className="flex items-center gap-2 px-3 py-2 bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition"
+              title="Recargar datos de la nube"
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            </button>
+          )}
+
+           {dataSource === 'local' && (
              <button onClick={clearStorage} className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm font-medium">
-               <Trash2 className="w-4 h-4" /> Borrar Datos
+               <Trash2 className="w-4 h-4" /> Borrar Local
              </button>
            )}
+           
            <label className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition shadow-md">
             <Upload className="w-4 h-4" />
-            <span>Subir CSV Completo</span>
-            <input type="file" accept=".csv,.txt" onChange={handleFileUpload} className="hidden" />
+            <span>Carga Manual</span>
+            <input type="file" accept=".csv,.txt" onChange={handleManualUpload} className="hidden" />
           </label>
         </div>
       </div>
 
-      {isSampleData ? (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex items-start gap-3 print:hidden">
-          <Info className="w-5 h-5 text-amber-600 mt-0.5" />
-          <div>
-            <h4 className="font-semibold text-amber-800">Modo de Demostración</h4>
-            <p className="text-sm text-amber-700">Viendo datos de ejemplo. Sube tu archivo para ver datos reales.</p>
-          </div>
-        </div>
+      {/* Banner de Estado de Datos */}
+      {isLoading ? (
+         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center justify-center gap-3 animate-pulse">
+           <RefreshCw className="w-5 h-5 text-blue-600 animate-spin" />
+           <span className="text-blue-800 font-medium">Conectando con la nube y descargando datos...</span>
+         </div>
       ) : (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-start gap-3 print:hidden">
-          {storageUsed ? <Save className="w-5 h-5 text-blue-600 mt-0.5" /> : <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5" />}
-          <div>
-            <h4 className="font-semibold text-blue-800">
-              {storageUsed ? 'Datos Recuperados de Memoria' : 'Archivo Cargado'}
-            </h4>
-            <p className="text-sm text-blue-700">
-              Archivo: <strong>{fileName}</strong>. {storageUsed ? 'Estos datos se guardaron automáticamente.' : 'Sube un nuevo archivo para actualizar.'}
-            </p>
-          </div>
-        </div>
+        <>
+          {fetchError && (
+             <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4 flex items-center gap-2 text-sm text-orange-800 print:hidden">
+                <AlertTriangle className="w-4 h-4" />
+                {fetchError}
+             </div>
+          )}
+
+          {dataSource === 'sample' && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 flex items-start gap-3 print:hidden">
+              <Info className="w-5 h-5 text-amber-600 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-amber-800">Modo de Demostración</h4>
+                <p className="text-sm text-amber-700">Configura la variable DATA_SOURCE_URL o sube un archivo.</p>
+              </div>
+            </div>
+          )}
+
+          {(dataSource === 'cloud' || dataSource === 'local' || dataSource === 'manual') && (
+            <div className={`border rounded-lg p-4 mb-6 flex items-start gap-3 print:hidden ${dataSource === 'cloud' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
+              {dataSource === 'cloud' ? <Cloud className="w-5 h-5 text-green-600 mt-0.5" /> : (dataSource === 'local' ? <Save className="w-5 h-5 text-blue-600 mt-0.5" /> : <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5" />)}
+              <div>
+                <h4 className={`font-semibold ${dataSource === 'cloud' ? 'text-green-800' : 'text-blue-800'}`}>
+                  {dataSource === 'cloud' ? 'Conectado a Google Sheets' : (dataSource === 'local' ? 'Datos Guardados (Local)' : 'Archivo Manual')}
+                </h4>
+                <p className={`text-sm ${dataSource === 'cloud' ? 'text-green-700' : 'text-blue-700'}`}>
+                  Fuente: <strong>{fileName}</strong>. {dataSource === 'cloud' ? 'Los datos se actualizan automáticamente al recargar la página.' : 'Datos estáticos.'}
+                </p>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* KPIs */}
@@ -513,7 +562,7 @@ export default function DashboardInscripciones() {
           </table>
         </div>
       </Card>
-      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.2 - Exportación Habilitada</div>
+      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.3 - Nube Integrada</div>
     </div>
   );
 }
