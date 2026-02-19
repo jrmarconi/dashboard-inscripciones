@@ -160,6 +160,9 @@ export default function DashboardInscripciones() {
   const [fileName, setFileName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [fetchError, setFetchError] = useState(null);
+  
+  // NUEVO: Estado para la fecha de última actualización
+  const [lastUpdateDate, setLastUpdateDate] = useState(null);
 
   // --- EFECTO DE INICIO: Prioridad Nube -> Local -> Ejemplo ---
   useEffect(() => {
@@ -190,6 +193,7 @@ export default function DashboardInscripciones() {
     // 2. Intentar LocalStorage (Si falló la nube o no hay URL)
     const storedData = localStorage.getItem('dashboard_data');
     const storedName = localStorage.getItem('dashboard_filename');
+    const storedDate = localStorage.getItem('dashboard_last_update');
 
     if (storedData) {
       try {
@@ -197,6 +201,11 @@ export default function DashboardInscripciones() {
         setRawData(parsedData);
         setFileName(storedName || 'Archivo Guardado');
         setDataSource('local');
+        if (storedDate) {
+          setLastUpdateDate(new Date(storedDate));
+        } else {
+          setLastUpdateDate(new Date()); // Fallback si no había fecha guardada
+        }
       } catch (e) {
         processCSV(SAMPLE_CSV, true, false);
       }
@@ -251,6 +260,8 @@ export default function DashboardInscripciones() {
 
       // Actualizar Estado
       setRawData(processed);
+      const now = new Date();
+      setLastUpdateDate(now);
       
       if (isSample) {
         setFileName('Datos de Ejemplo');
@@ -262,6 +273,7 @@ export default function DashboardInscripciones() {
           try {
             localStorage.setItem('dashboard_data', JSON.stringify(processed));
             localStorage.setItem('dashboard_filename', newFileName);
+            localStorage.setItem('dashboard_last_update', now.toISOString()); // Guardamos la fecha
             setDataSource('local');
           } catch (e) {
             alert("El archivo es demasiado grande para guardarse permanentemente.");
@@ -289,8 +301,18 @@ export default function DashboardInscripciones() {
     if (window.confirm("¿Estás seguro de borrar los datos locales? Si tienes un enlace de Google Sheets configurado, se intentará recargar.")) {
       localStorage.removeItem('dashboard_data');
       localStorage.removeItem('dashboard_filename');
+      localStorage.removeItem('dashboard_last_update');
       loadData(); // Intentar recargar nube o ejemplo
     }
+  };
+
+  // Helper para formatear la fecha
+  const formatDateTime = (dateObj) => {
+    if (!dateObj) return '';
+    return dateObj.toLocaleDateString('es-AR', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
   };
 
   // --- Funciones de Exportación ---
@@ -405,9 +427,19 @@ export default function DashboardInscripciones() {
         <div>
           <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
             <Users className="w-8 h-8 text-blue-600 print:hidden" />
-            Tablero de Inscripciones (2026)
+            <span><span className="text-blue-600">CFP N°1 -</span> Tablero de Inscripciones (2026)</span>
           </h1>
-          <p className="text-slate-500 mt-1 print:hidden">Análisis Demográfico y de Ofertas</p>
+          <div className="text-slate-500 mt-2 print:hidden flex items-center gap-3 flex-wrap">
+            <span>Análisis Demográfico y de Ofertas</span>
+            {lastUpdateDate && (
+              <>
+                <span className="text-slate-300 hidden md:inline">|</span>
+                <span className="text-xs font-medium bg-slate-200 text-slate-700 px-2 py-1 rounded border border-slate-300 flex items-center gap-1 shadow-sm">
+                  Última actualización: {formatDateTime(lastUpdateDate)}
+                </span>
+              </>
+            )}
+          </div>
         </div>
         
         <div className="flex items-center gap-3 print:hidden">
@@ -471,6 +503,7 @@ export default function DashboardInscripciones() {
                 </h4>
                 <p className={`text-sm ${dataSource === 'cloud' ? 'text-green-700' : 'text-blue-700'}`}>
                   Fuente: <strong>{fileName}</strong>. {dataSource === 'cloud' ? 'Los datos se actualizan automáticamente al recargar la página.' : 'Datos estáticos.'}
+                  {lastUpdateDate && dataSource !== 'cloud' && ` (Cargado el: ${formatDateTime(lastUpdateDate)})`}
                 </p>
               </div>
             </div>
@@ -526,26 +559,58 @@ export default function DashboardInscripciones() {
       <Card className="p-4 mb-8 sticky top-0 z-20 shadow-md print:hidden">
         <div className="flex flex-col md:flex-row gap-4 items-center flex-wrap">
           <div className="flex items-center gap-2 text-slate-600"><Filter className="w-4 h-4" /><span className="font-semibold text-sm">Filtros:</span></div>
-          <select value={filterGenero} onChange={(e) => setFilterGenero(e.target.value)} className="px-3 py-2 border rounded-md text-sm bg-white">
+          
+          <select 
+            value={filterGenero} 
+            onChange={(e) => setFilterGenero(e.target.value)} 
+            className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterGenero !== 'Todos' ? 'bg-pink-50 border-pink-300 text-pink-800 font-medium shadow-sm focus:ring-2 focus:ring-pink-200' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 focus:border-pink-400'}`}
+          >
             <option value="Todos">Género: Todos</option><option value="Femenino">Femenino</option><option value="Masculino">Masculino</option>
           </select>
-          <select value={filterTipoOferta} onChange={(e) => setFilterTipoOferta(e.target.value)} className="px-3 py-2 border rounded-md text-sm bg-white">
+          
+          <select 
+            value={filterTipoOferta} 
+            onChange={(e) => setFilterTipoOferta(e.target.value)} 
+            className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterTipoOferta !== 'Todos' ? 'bg-purple-50 border-purple-300 text-purple-800 font-medium shadow-sm focus:ring-2 focus:ring-purple-200' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 focus:border-purple-400'}`}
+          >
             <option value="Todos">Oferta: Todas</option><option value="Capacitación Laboral">Cap. Laboral</option><option value="Curso">Curso</option><option value="Trayecto">Trayecto</option>
           </select>
-          <select value={filterTurno} onChange={(e) => setFilterTurno(e.target.value)} className="px-3 py-2 border rounded-md text-sm bg-white">
+          
+          <select 
+            value={filterTurno} 
+            onChange={(e) => setFilterTurno(e.target.value)} 
+            className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterTurno !== 'Todos' ? 'bg-amber-50 border-amber-300 text-amber-800 font-medium shadow-sm focus:ring-2 focus:ring-amber-200' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 focus:border-amber-400'}`}
+          >
             <option value="Todos">Turno: Todos</option><option value="TM">Mañana</option><option value="TT">Tarde</option><option value="TN">Noche</option>
           </select>
-          <select value={filterEstado} onChange={(e) => setFilterEstado(e.target.value)} className="px-3 py-2 border rounded-md text-sm bg-white">
+          
+          <select 
+            value={filterEstado} 
+            onChange={(e) => setFilterEstado(e.target.value)} 
+            className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterEstado !== 'Todos' ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-medium shadow-sm focus:ring-2 focus:ring-emerald-200' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 focus:border-emerald-400'}`}
+          >
             <option value="Todos">Estado: Todos</option>
             {uniqueEstados.map(est => <option key={est} value={est}>{est}</option>)}
           </select>
-          <select value={filterActividad} onChange={(e) => setFilterActividad(e.target.value)} className="px-3 py-2 border rounded-md text-sm bg-white max-w-xs truncate">
+          
+          <select 
+            value={filterActividad} 
+            onChange={(e) => setFilterActividad(e.target.value)} 
+            className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer max-w-xs truncate ${filterActividad !== 'Todas' ? 'bg-indigo-50 border-indigo-300 text-indigo-800 font-medium shadow-sm focus:ring-2 focus:ring-indigo-200' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50 focus:border-indigo-400'}`}
+          >
             <option value="Todas">Actividad: Todas</option>
             {uniqueActivities.map(act => <option key={act} value={act}>{act}</option>)}
           </select>
+          
           <div className="relative flex-1 w-full min-w-[200px]">
-            <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
-            <input type="text" placeholder="Buscar..." className="w-full pl-10 pr-4 py-2 border rounded-md text-sm" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <Search className={`absolute left-3 top-2.5 w-4 h-4 transition-colors ${searchTerm ? 'text-blue-600' : 'text-slate-400'}`} />
+            <input 
+              type="text" 
+              placeholder="Buscar por nombre o DNI..." 
+              className={`w-full pl-10 pr-4 py-2 border rounded-md text-sm outline-none transition-colors ${searchTerm ? 'bg-blue-50 border-blue-300 text-blue-900 font-medium shadow-sm focus:ring-2 focus:ring-blue-200' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50 focus:border-blue-400'}`} 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)} 
+            />
           </div>
         </div>
       </Card>
