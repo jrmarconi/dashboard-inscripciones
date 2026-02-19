@@ -5,7 +5,7 @@ import {
 import { 
   Upload, Users, Filter, Search, Info, 
   UserCheck, FileSpreadsheet, Trash2, Save, Download, Printer, Cloud, RefreshCw, AlertTriangle,
-  Sun, Moon, Sunset, Mail, Phone
+  Sun, Moon, Sunset, Mail, Phone, ChevronDown, ChevronUp
 } from 'lucide-react';
 
 // ==============================================================================
@@ -152,6 +152,9 @@ export default function DashboardInscripciones() {
   const [filterGenero, setFilterGenero] = useState('Todos');
   const [searchTerm, setSearchTerm] = useState('');
   
+  // Estado para mostrar/ocultar panel de actividades
+  const [showActividadChart, setShowActividadChart] = useState(false);
+
   // Estado de datos y fuente
   const [dataSource, setDataSource] = useState('sample'); // 'sample', 'local', 'cloud', 'manual'
   const [fileName, setFileName] = useState('');
@@ -611,33 +614,47 @@ export default function DashboardInscripciones() {
       </div>
 
       <Card className="p-6 mb-8 print:hidden">
-        <h3 className="text-lg font-semibold mb-6 text-slate-800">Distribución Completa por Actividad</h3>
-        
-        {/* NUEVA VISUALIZACIÓN: LISTA DE BARRAS DE PROGRESO RESPONSIVE */}
-        <div className="flex flex-col gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-          {stats.chartDataActividad.map((item, idx) => (
-            <div key={idx} className="w-full">
-               <div className="flex justify-between text-sm mb-1">
-                 <span 
-                    className="font-medium text-slate-700 truncate pr-4" 
-                    title={item.fullName} // Tooltip nativo al pasar el mouse
-                  >
-                   {item.fullName}
-                 </span>
-                 <span className="text-slate-500 font-bold whitespace-nowrap">{item.value}</span>
-               </div>
-               <div className="w-full bg-slate-100 rounded-full h-2.5">
-                 <div 
-                    className="bg-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out" 
-                    style={{ width: `${(item.value / maxActivityValue) * 100}%` }}
-                 ></div>
-               </div>
-            </div>
-          ))}
-          {stats.chartDataActividad.length === 0 && (
-            <p className="text-slate-400 text-center py-4">No hay datos disponibles con los filtros actuales.</p>
-          )}
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-lg font-semibold text-slate-800">Distribución Completa por Actividad</h3>
+          <button 
+            onClick={() => setShowActividadChart(!showActividadChart)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-sm font-medium transition"
+          >
+            {showActividadChart ? (
+              <><ChevronUp className="w-4 h-4" /> Ocultar</>
+            ) : (
+              <><ChevronDown className="w-4 h-4" /> Mostrar</>
+            )}
+          </button>
         </div>
+        
+        {/* NUEVA VISUALIZACIÓN: LISTA DE BARRAS DE PROGRESO RESPONSIVE (CONDICIONAL) */}
+        {showActividadChart && (
+          <div className="flex flex-col gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar mt-6">
+            {stats.chartDataActividad.map((item, idx) => (
+              <div key={idx} className="w-full">
+                 <div className="flex justify-between text-sm mb-1">
+                   <span 
+                      className="font-medium text-slate-700 truncate pr-4" 
+                      title={item.fullName} // Tooltip nativo al pasar el mouse
+                    >
+                     {item.fullName}
+                   </span>
+                   <span className="text-slate-500 font-bold whitespace-nowrap">{item.value}</span>
+                 </div>
+                 <div className="w-full bg-slate-100 rounded-full h-2.5">
+                   <div 
+                      className="bg-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out" 
+                      style={{ width: `${(item.value / maxActivityValue) * 100}%` }}
+                   ></div>
+                 </div>
+              </div>
+            ))}
+            {stats.chartDataActividad.length === 0 && (
+              <p className="text-slate-400 text-center py-4">No hay datos disponibles con los filtros actuales.</p>
+            )}
+          </div>
+        )}
       </Card>
 
       <Card className="overflow-hidden print:shadow-none print:border-none">
@@ -665,7 +682,7 @@ export default function DashboardInscripciones() {
                 <th className="p-4 print:p-2">Alumno</th>
                 <th className="p-4 print:p-2">Mail</th>
                 <th className="p-4 print:p-2">Teléfono</th>
-                <th className="p-4 print:p-2">Género</th>
+                {/* Columna Género oculta: <th className="p-4 print:p-2">Género</th> */}
                 <th className="p-4 print:p-2">DNI</th>
                 <th className="p-4 print:p-2">Turno</th>
                 <th className="p-4 print:p-2">Oferta</th>
@@ -679,7 +696,7 @@ export default function DashboardInscripciones() {
                   <td className="p-4 font-medium print:p-2">{row.alumno}</td>
                   <td className="p-4 text-xs text-slate-500 break-words max-w-[150px] print:p-2">{row.email}</td>
                   <td className="p-4 text-xs font-mono text-slate-500 print:p-2">{row.telefono}</td>
-                  <td className="p-4 print:p-2"><Badge type={row.genero}>{row.genero}</Badge></td>
+                  {/* Dato Género oculto: <td className="p-4 print:p-2"><Badge type={row.genero}>{row.genero}</Badge></td> */}
                   <td className="p-4 text-slate-500 print:p-2">{row.dni}</td>
                   <td className="p-4 print:p-2"><Badge type={row.turno}>{row.turno}</Badge></td>
                   <td className="p-4 print:p-2"><OfferBadge type={row.tipoOferta} /></td>
