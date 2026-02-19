@@ -5,7 +5,7 @@ import {
 import { 
   Upload, Users, Filter, Search, Info, 
   UserCheck, FileSpreadsheet, Trash2, Save, Download, Printer, Cloud, RefreshCw, AlertTriangle,
-  Sun, Moon, Sunset
+  Sun, Moon, Sunset, Mail, Phone
 } from 'lucide-react';
 
 // ==============================================================================
@@ -85,15 +85,15 @@ const inferGender = (fullName) => {
 
 // Datos de muestra
 const SAMPLE_CSV = `Alumno,Identificación,Mail,Teléfono,Comisión,Estado Insc.,Actividad
-"Aguirre Zanca, Karina Ana",DNI 24804039,karinaguirre75@gmail.com,11|26549320,CFP N° 1 - Río Cuarto - 1993 - 01-TT,Pendiente,(CL_1436) Operador de Herramientas de Marketing Digital
-"ALARCON VILLAMAYOR, OLGA LILIOSA",DNI 95625371,lili90villamayor@gmail.com,11|28732605,CFP N° 1 - Río Cuarto - 1993 - 02-TN,Pendiente,(CL_1436) Operador de Herramientas de Marketing Digital
-"ALVAREZ, MIRTA SUSANA",DNI 23454865,alvarezsusana549@gmail.com,011|60370455,CFP N° 1 - Río Cuarto - 1993 - 02-TN,Aceptada,(CL_1436) Operador de Herramientas de Marketing Digital
-"Andriani, Camila AGUSTINA",DNI 47127952,camilalovers339@gmail.com,54|1159781620,CFP N° 1 - Río Cuarto - 1993 - 01-TT,Aceptada,(CL_1436) Operador de Herramientas de Marketing Digital
-"PIREZ, PABLO NAHUEL",DNI 47435248,nahuelpirez12@gmail.com,,CFP N° 1 - Río Cuarto - 1993 - 05-TN,Pendiente,(TR_MYA_ME_1) Sistema motor de combustión interna
-"RAMOS, AGOSTINA CELESTE",DNI 47738200,agostinacr28@gmail.com,,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Pendiente,(TR_MYA_ME_1) Sistema motor de combustión interna
-"RANONE GIGENA, NAHUEL EZEQUIEL",DNI 47126080,cfp6ezequielranone@gmail.com,,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Pendiente,(TR_MYA_ME_1) Sistema motor de combustión interna
-"REYNAGA VALE, FRANCISCO",DNI 94056832,juanrenvion@gmail.com,,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Rechazada,(TR_MYA_ME_1) Sistema motor de combustión interna
-"REYNAGA VALE, FRANCISCO",DNI 94056832,juanrenvion@gmail.com,,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Aceptada,(TR_MYA_ME_1) Sistema motor de combustión interna`;
+"Aguirre Zanca, Karina Ana",DNI 24804039,karinaguirre75@gmail.com,1126549320,CFP N° 1 - Río Cuarto - 1993 - 01-TT,Pendiente,(CL_1436) Operador de Herramientas de Marketing Digital
+"ALARCON VILLAMAYOR, OLGA LILIOSA",DNI 95625371,lili90villamayor@gmail.com,1128732605,CFP N° 1 - Río Cuarto - 1993 - 02-TN,Pendiente,(CL_1436) Operador de Herramientas de Marketing Digital
+"ALVAREZ, MIRTA SUSANA",DNI 23454865,alvarezsusana549@gmail.com,01160370455,CFP N° 1 - Río Cuarto - 1993 - 02-TN,Aceptada,(CL_1436) Operador de Herramientas de Marketing Digital
+"Andriani, Camila AGUSTINA",DNI 47127952,camilalovers339@gmail.com,541159781620,CFP N° 1 - Río Cuarto - 1993 - 01-TT,Aceptada,(CL_1436) Operador de Herramientas de Marketing Digital
+"PIREZ, PABLO NAHUEL",DNI 47435248,nahuelpirez12@gmail.com,3584112233,CFP N° 1 - Río Cuarto - 1993 - 05-TN,Pendiente,(TR_MYA_ME_1) Sistema motor de combustión interna
+"RAMOS, AGOSTINA CELESTE",DNI 47738200,agostinacr28@gmail.com,3585998877,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Pendiente,(TR_MYA_ME_1) Sistema motor de combustión interna
+"RANONE GIGENA, NAHUEL EZEQUIEL",DNI 47126080,cfp6ezequielranone@gmail.com,358123456,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Pendiente,(TR_MYA_ME_1) Sistema motor de combustión interna
+"REYNAGA VALE, FRANCISCO",DNI 94056832,juanrenvion@gmail.com,358987654,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Rechazada,(TR_MYA_ME_1) Sistema motor de combustión interna
+"REYNAGA VALE, FRANCISCO",DNI 94056832,juanrenvion@gmail.com,358987654,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Aceptada,(TR_MYA_ME_1) Sistema motor de combustión interna`;
 
 const COLORS = {
   TM: '#F59E0B', 
@@ -218,6 +218,7 @@ export default function DashboardInscripciones() {
           if (key.includes('Alumno')) key = 'alumno';
           else if (key.includes('Identificación')) key = 'dni';
           else if (key.includes('Mail')) key = 'email';
+          else if (key.includes('Teléfono') || key.includes('Celular')) key = 'telefono';
           else if (key.includes('Comisión')) key = 'comision';
           else if (key.includes('Estado')) key = 'estado';
           else if (key.includes('Actividad')) key = 'actividad';
@@ -291,13 +292,24 @@ export default function DashboardInscripciones() {
 
   // --- Funciones de Exportación ---
   const handleDownloadCSV = () => {
-    const headers = ['Alumno', 'Género', 'DNI', 'Turno', 'Oferta', 'Actividad', 'Estado'];
+    // Agregamos Mail y Teléfono a la cabecera
+    const headers = ['Alumno', 'Mail', 'Teléfono', 'Género', 'DNI', 'Turno', 'Oferta', 'Actividad', 'Estado'];
+    
     const csvContent = [
       headers.join(';'),
       ...filteredData.map(row => [
-        `"${row.alumno || ''}"`, row.genero, row.dni, row.turno, row.tipoOferta, `"${row.actividadSimple || ''}"`, row.estado
+        `"${row.alumno || ''}"`, 
+        `"${row.email || ''}"`,
+        `"${row.telefono || ''}"`,
+        row.genero, 
+        row.dni, 
+        row.turno, 
+        row.tipoOferta, 
+        `"${row.actividadSimple || ''}"`, 
+        row.estado
       ].join(';'))
     ].join('\n');
+    
     const bom = '\uFEFF';
     const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -651,6 +663,8 @@ export default function DashboardInscripciones() {
             <thead className="bg-slate-100 uppercase text-xs print:bg-white print:border-b-2 print:border-black">
               <tr>
                 <th className="p-4 print:p-2">Alumno</th>
+                <th className="p-4 print:p-2">Mail</th>
+                <th className="p-4 print:p-2">Teléfono</th>
                 <th className="p-4 print:p-2">Género</th>
                 <th className="p-4 print:p-2">DNI</th>
                 <th className="p-4 print:p-2">Turno</th>
@@ -663,6 +677,8 @@ export default function DashboardInscripciones() {
               {filteredData.map((row, i) => (
                 <tr key={i} className="hover:bg-slate-50 print:hover:bg-transparent">
                   <td className="p-4 font-medium print:p-2">{row.alumno}</td>
+                  <td className="p-4 text-xs text-slate-500 break-words max-w-[150px] print:p-2">{row.email}</td>
+                  <td className="p-4 text-xs font-mono text-slate-500 print:p-2">{row.telefono}</td>
                   <td className="p-4 print:p-2"><Badge type={row.genero}>{row.genero}</Badge></td>
                   <td className="p-4 text-slate-500 print:p-2">{row.dni}</td>
                   <td className="p-4 print:p-2"><Badge type={row.turno}>{row.turno}</Badge></td>
@@ -675,7 +691,7 @@ export default function DashboardInscripciones() {
           </table>
         </div>
       </Card>
-      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.3 - Nube Integrada</div>
+      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.4 - Datos de Contacto Agregados</div>
     </div>
   );
 }
