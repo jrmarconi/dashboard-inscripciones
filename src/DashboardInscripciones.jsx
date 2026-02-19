@@ -4,7 +4,8 @@ import {
 } from 'recharts';
 import { 
   Upload, Users, Filter, Search, Info, 
-  UserCheck, FileSpreadsheet, Trash2, Save, Download, Printer, Cloud, RefreshCw, AlertTriangle
+  UserCheck, FileSpreadsheet, Trash2, Save, Download, Printer, Cloud, RefreshCw, AlertTriangle,
+  Sun, Moon, Sunset
 } from 'lucide-react';
 
 // ==============================================================================
@@ -310,6 +311,28 @@ export default function DashboardInscripciones() {
 
   const handlePrint = () => window.print();
 
+  // Función para renderizar etiquetas en los gráficos de Pie
+  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = outerRadius + 15; // Un poco más afuera
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill="#475569" 
+        textAnchor={x > cx ? 'start' : 'end'} 
+        dominantBaseline="central" 
+        fontSize="11"
+        fontWeight="600"
+      >
+        {`${value} (${(percent * 100).toFixed(0)}%)`}
+      </text>
+    );
+  };
+
   // Filtrado de datos
   useEffect(() => {
     let result = rawData;
@@ -353,6 +376,11 @@ export default function DashboardInscripciones() {
 
   const uniqueActivities = useMemo(() => [...new Set(rawData.map(item => item.actividadSimple))].sort(), [rawData]);
   const uniqueEstados = useMemo(() => [...new Set(rawData.map(item => item.estado ? item.estado.trim() : null).filter(Boolean))].sort(), [rawData]);
+
+  const maxActivityValue = useMemo(() => {
+    if (stats.chartDataActividad.length === 0) return 0;
+    return Math.max(...stats.chartDataActividad.map(d => d.value));
+  }, [stats.chartDataActividad]);
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-4 md:p-8 print:bg-white print:p-0">
@@ -455,6 +483,28 @@ export default function DashboardInscripciones() {
             <div><p className="text-sm text-slate-500">Hombres (Est.)</p><p className="text-2xl font-bold">{stats.porGenero.Masculino}</p></div>
           </div>
         </Card>
+
+        {/* Tarjetas de Turnos */}
+        <Card className="p-4 border-l-4 border-amber-500 print:border-slate-200">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-amber-50 rounded-full text-amber-600 print:hidden"><Sun className="w-6 h-6" /></div>
+            <div><p className="text-sm text-slate-500">Turno Mañana</p><p className="text-2xl font-bold">{stats.porTurno.TM}</p></div>
+          </div>
+        </Card>
+
+        <Card className="p-4 border-l-4 border-orange-500 print:border-slate-200">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-orange-50 rounded-full text-orange-600 print:hidden"><Sunset className="w-6 h-6" /></div>
+            <div><p className="text-sm text-slate-500">Turno Tarde</p><p className="text-2xl font-bold">{stats.porTurno.TT}</p></div>
+          </div>
+        </Card>
+
+        <Card className="p-4 border-l-4 border-indigo-500 print:border-slate-200">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-indigo-50 rounded-full text-indigo-600 print:hidden"><Moon className="w-6 h-6" /></div>
+            <div><p className="text-sm text-slate-500">Turno Noche</p><p className="text-2xl font-bold">{stats.porTurno.TN}</p></div>
+          </div>
+        </Card>
       </div>
 
       {/* Filtros */}
@@ -494,11 +544,49 @@ export default function DashboardInscripciones() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 print:hidden">
         <Card className="p-6 col-span-1">
           <h3 className="text-lg font-semibold mb-4 text-slate-800">Género</h3>
-          <div className="h-64"><ResponsiveContainer><PieChart><Pie data={stats.chartDataGenero} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">{stats.chartDataGenero.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.key]} />)}</Pie><Tooltip /><Legend /></PieChart></ResponsiveContainer></div>
+          <div className="h-64">
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie 
+                  data={stats.chartDataGenero} 
+                  cx="50%" 
+                  cy="50%" 
+                  innerRadius={50} 
+                  outerRadius={65} // Reducido para que entre la etiqueta
+                  paddingAngle={5} 
+                  dataKey="value"
+                  label={renderCustomLabel} // Etiqueta personalizada con valor y %
+                >
+                  {stats.chartDataGenero.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.key]} />)}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </Card>
         <Card className="p-6 col-span-1">
           <h3 className="text-lg font-semibold mb-4 text-slate-800">Turnos</h3>
-          <div className="h-64"><ResponsiveContainer><PieChart><Pie data={stats.chartDataTurno} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={5} dataKey="value">{stats.chartDataTurno.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.key]} />)}</Pie><Tooltip /><Legend /></PieChart></ResponsiveContainer></div>
+          <div className="h-64">
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie 
+                  data={stats.chartDataTurno} 
+                  cx="50%" 
+                  cy="50%" 
+                  innerRadius={50} 
+                  outerRadius={65} // Reducido para que entre la etiqueta
+                  paddingAngle={5} 
+                  dataKey="value"
+                  label={renderCustomLabel} // Etiqueta personalizada con valor y %
+                >
+                  {stats.chartDataTurno.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.key]} />)}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </Card>
         <Card className="p-6 col-span-1">
           <h3 className="text-lg font-semibold mb-4 text-slate-800">Estados</h3>
@@ -512,7 +600,32 @@ export default function DashboardInscripciones() {
 
       <Card className="p-6 mb-8 print:hidden">
         <h3 className="text-lg font-semibold mb-6 text-slate-800">Distribución Completa por Actividad</h3>
-        <div className="h-80"><ResponsiveContainer><BarChart data={stats.chartDataActividad} margin={{ top: 5, right: 30, left: 20, bottom: 60 }}><CartesianGrid strokeDasharray="3 3" vertical={false} /><XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" height={70} tick={{fontSize: 10}} /><YAxis /><Tooltip /><Bar dataKey="value" fill="#4F46E5" radius={[4, 4, 0, 0]} /></BarChart></ResponsiveContainer></div>
+        
+        {/* NUEVA VISUALIZACIÓN: LISTA DE BARRAS DE PROGRESO RESPONSIVE */}
+        <div className="flex flex-col gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+          {stats.chartDataActividad.map((item, idx) => (
+            <div key={idx} className="w-full">
+               <div className="flex justify-between text-sm mb-1">
+                 <span 
+                    className="font-medium text-slate-700 truncate pr-4" 
+                    title={item.fullName} // Tooltip nativo al pasar el mouse
+                  >
+                   {item.fullName}
+                 </span>
+                 <span className="text-slate-500 font-bold whitespace-nowrap">{item.value}</span>
+               </div>
+               <div className="w-full bg-slate-100 rounded-full h-2.5">
+                 <div 
+                    className="bg-indigo-600 h-2.5 rounded-full transition-all duration-500 ease-out" 
+                    style={{ width: `${(item.value / maxActivityValue) * 100}%` }}
+                 ></div>
+               </div>
+            </div>
+          ))}
+          {stats.chartDataActividad.length === 0 && (
+            <p className="text-slate-400 text-center py-4">No hay datos disponibles con los filtros actuales.</p>
+          )}
+        </div>
       </Card>
 
       <Card className="overflow-hidden print:shadow-none print:border-none">
