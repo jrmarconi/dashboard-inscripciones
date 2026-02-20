@@ -178,8 +178,12 @@ export default function DashboardInscripciones() {
       try {
         const response = await fetch(DATA_SOURCE_URL);
         if (!response.ok) throw new Error('Error de conexión con la hoja de cálculo');
+        
+        // Intentar obtener la fecha de modificación real enviada por los servidores de Google
+        const lastModifiedHeader = response.headers.get('Last-Modified');
+        
         const text = await response.text();
-        processCSV(text, false, false, "Datos en la Nube (Auto)");
+        processCSV(text, false, false, "Datos en la Nube (Auto)", lastModifiedHeader);
         setDataSource('cloud');
         setIsLoading(false);
         return; // Éxito con nube
@@ -217,7 +221,7 @@ export default function DashboardInscripciones() {
   };
 
   // Función principal de procesamiento
-  const processCSV = (csvText, isSample = false, persist = false, newFileName = '') => {
+  const processCSV = (csvText, isSample = false, persist = false, newFileName = '', headerDate = null) => {
     try {
       const parsed = parseCSV(csvText);
       const headers = parsed[0];
@@ -260,8 +264,9 @@ export default function DashboardInscripciones() {
 
       // Actualizar Estado
       setRawData(processed);
-      const now = new Date();
-      setLastUpdateDate(now);
+      // Si recibimos una fecha en la cabecera (Drive), la usamos. Si no, usamos la hora actual.
+      const updateTime = headerDate ? new Date(headerDate) : new Date();
+      setLastUpdateDate(updateTime);
       
       if (isSample) {
         setFileName('Datos de Ejemplo');
@@ -273,7 +278,7 @@ export default function DashboardInscripciones() {
           try {
             localStorage.setItem('dashboard_data', JSON.stringify(processed));
             localStorage.setItem('dashboard_filename', newFileName);
-            localStorage.setItem('dashboard_last_update', now.toISOString()); // Guardamos la fecha
+            localStorage.setItem('dashboard_last_update', updateTime.toISOString()); // Guardamos la fecha
             setDataSource('local');
           } catch (e) {
             alert("El archivo es demasiado grande para guardarse permanentemente.");
@@ -434,8 +439,8 @@ export default function DashboardInscripciones() {
             {lastUpdateDate && (
               <>
                 <span className="text-slate-300 hidden md:inline">|</span>
-                <span className="text-xs font-medium bg-slate-200 text-slate-700 px-2 py-1 rounded border border-slate-300 flex items-center gap-1 shadow-sm">
-                  Última actualización: {formatDateTime(lastUpdateDate)}
+                <span className="text-xs font-medium bg-slate-200 text-slate-700 px-2 py-1 rounded border border-slate-300 flex items-center gap-1 shadow-sm" title="Hora de la última modificación detectada en el origen de datos">
+                  {dataSource === 'cloud' ? 'Modificado en Drive:' : 'Última carga:'} {formatDateTime(lastUpdateDate)}
                 </span>
               </>
             )}
