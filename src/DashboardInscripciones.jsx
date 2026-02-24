@@ -40,6 +40,8 @@ CELASCO;JUAN CARLOS;24817160;(TR_40_ME_2)Corte;CFP N° 1 - Río Cuarto - 1993 - 
 CELASCO;JUAN CARLOS;24817160;(TR_40_ME_2)Corte;CFP N° 1 - Río Cuarto - 1993 - 03-TN;Presencial;Peluquero/a
 CELASCO;JUAN CARLOS;24817160;(TR_EST_MC_1)Piel y Anexos Cutáneos;CFP N° 1 - Río Cuarto - 1993 - 02-TT;Presencial;Peluquero/a
 CELASCO;JUAN CARLOS;24817160;(TR_EST_MC_1)Piel y Anexos Cutáneos;CFP N° 1 - Río Cuarto - 1993 - 03-TN;Presencial;Peluquero/a
+CONTERNO;NESTOR EDUARDO;23815939;(CT_0244) CARPINTERO DE BANCO;CFP N° 1 - Río Cuarto - 1993 - 01-TT;Presencial;Carpintero de Banco
+CONTERNO;NESTOR EDUARDO;23815939;(CT_0244) CARPINTERO DE BANCO;CFP N° 1 - Río Cuarto - 1993 - 02-TN;Presencial;Carpintero de Banco
 CONTERNO;NESTOR EDUARDO;23815939;(CL_1699)Carpintero/a básico de muebles de melamina;CFP N° 1 - Río Cuarto - 1993 - 01-TT;Presencial;Carpintero/a Básico de Muebles de Melamina
 CONTERNO;NESTOR EDUARDO;23815939;(CL_1699)Carpintero/a básico de muebles de melamina;CFP N° 1 - Río Cuarto - 1993 - 02-TN;Presencial;Carpintero/a Básico de Muebles de Melamina
 COSTA;CINTIA LORENA;24930070;(TR_EST_MC_3)Relaciones laborales y orientación profesional;CFP N° 1 - Río Cuarto - 1993 - 02-TT-Presencial/Híbrida;Presencial/Híbrida/Presencial;Maquillador/a profesional
@@ -193,7 +195,7 @@ const buildKey = (comision, actividad) => {
   return `${normalizeKey(comision)}|${extractActivityCode(actividad)}`;
 };
 
-// --- Lógica de Inferencia de Género (se mantiene para la gráfica) ---
+// --- Lógica de Inferencia de Género ---
 const inferGender = (fullName) => {
   if (!fullName) return 'Desconocido';
   const parts = fullName.split(',');
@@ -240,13 +242,13 @@ const Card = ({ children, className = "" }) => (
 const Badge = ({ children, type }) => {
   let classes = "px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ";
   switch (type) {
-    case 'Aceptada': classes += "bg-green-100 text-green-800"; break;
-    case 'Rechazada': classes += "bg-red-100 text-red-800"; break;
-    case 'Pendiente': classes += "bg-yellow-100 text-yellow-800"; break;
-    case 'TM': classes += "bg-amber-100 text-amber-800 border border-amber-200"; break;
-    case 'TT': classes += "bg-orange-100 text-orange-800 border border-orange-200"; break;
-    case 'TN': classes += "bg-indigo-100 text-indigo-800 border border-indigo-200"; break;
-    default: classes += "bg-gray-100 text-gray-800";
+    case 'Aceptada': classes += "bg-green-100 text-green-800 print:bg-transparent print:border print:border-green-600 print:text-green-800"; break;
+    case 'Rechazada': classes += "bg-red-100 text-red-800 print:bg-transparent print:border print:border-red-600 print:text-red-800"; break;
+    case 'Pendiente': classes += "bg-yellow-100 text-yellow-800 print:bg-transparent print:border print:border-yellow-600 print:text-yellow-800"; break;
+    case 'TM': classes += "bg-amber-100 text-amber-800 border border-amber-200 print:bg-transparent print:border-amber-600"; break;
+    case 'TT': classes += "bg-orange-100 text-orange-800 border border-orange-200 print:bg-transparent print:border-orange-600"; break;
+    case 'TN': classes += "bg-indigo-100 text-indigo-800 border border-indigo-200 print:bg-transparent print:border-indigo-600"; break;
+    default: classes += "bg-gray-100 text-gray-800 print:bg-transparent print:border-gray-500 print:border";
   }
   return <span className={classes}>{children}</span>;
 };
@@ -265,8 +267,9 @@ export default function DashboardInscripciones() {
   const [filterPropuesta, setFilterPropuesta] = useState('Todas');
   const [searchTerm, setSearchTerm] = useState('');
   
-  // Estado para visibilidad del gráfico completo de actividades
+  // Estados para mostrar gráficos completos
   const [showFullActChart, setShowFullActChart] = useState(false);
+  const [showFullPropChart, setShowFullPropChart] = useState(false);
 
   const [dataSource, setDataSource] = useState('sample');
   const [fileName, setFileName] = useState('');
@@ -307,7 +310,7 @@ export default function DashboardInscripciones() {
       const idxPropuesta = headers.findIndex(h => h.includes('propuesta'));
 
       if (idxApellido === -1 || idxActividad === -1 || idxComision === -1) {
-        console.warn("El archivo de docentes no tiene las columnas requeridas (ApellidoDocente, Actividad, Comisión).");
+        console.warn("El archivo de docentes no tiene las columnas requeridas.");
         return 0;
       }
 
@@ -548,12 +551,22 @@ export default function DashboardInscripciones() {
     });
   };
 
+  // --- FUNCIÓN DE DESCARGA CSV ---
   const handleDownloadCSV = () => {
-    const headers = ['Alumno', 'DNI', 'Turno', 'Teléfono', 'Mail', 'Estado'];
+    const headers = ['Alumno', 'DNI', 'Turno', 'Teléfono', 'Mail', 'Estado', 'Propuesta', 'Actividad', 'Docente'];
+    
     const csvContent = [
       headers.join(';'),
       ...filteredData.map(row => [
-        `"${row.alumno || ''}"`, row.dni, row.turno, `"${row.telefono || ''}"`, `"${row.email || ''}"`, row.estado
+        `"${row.alumno || ''}"`, 
+        `"${row.dni || ''}"`, 
+        `"${row.turno || ''}"`, 
+        `"${row.telefono || ''}"`, 
+        `"${row.email || ''}"`, 
+        `"${row.estado || ''}"`,
+        `"${row.propuesta || ''}"`,
+        `"${row.actividad || ''}"`, 
+        `"${row.docente || ''}"`
       ].join(';'))
     ].join('\n');
     
@@ -622,6 +635,7 @@ export default function DashboardInscripciones() {
         value: porActividad[key] 
       })).sort((a, b) => b.value - a.value),
       chartDataPropuesta: Object.keys(porPropuesta).map(key => ({ 
+        name: key.length > 35 ? key.substring(0, 35) + '...' : key, 
         fullName: key, 
         value: porPropuesta[key] 
       })).sort((a, b) => b.value - a.value)
@@ -629,8 +643,9 @@ export default function DashboardInscripciones() {
   }, [filteredData]);
 
   const fullChartHeight = Math.max(400, stats.chartDataActividad.length * 40);
+  const fullPropChartHeight = Math.max(400, stats.chartDataPropuesta.length * 40);
 
-  // Construir lista de etiquetas de filtros activos para el título de la tabla
+  // Construir lista de etiquetas de filtros activos para la web
   const activeFiltersLabels = [];
   if (filterTurno !== 'Todos') activeFiltersLabels.push(`Turno: ${filterTurno}`);
   if (filterPropuesta !== 'Todas') activeFiltersLabels.push(`Propuesta: ${filterPropuesta}`);
@@ -642,12 +657,12 @@ export default function DashboardInscripciones() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-4 md:p-8 print:bg-white print:p-0">
       
-      {/* Header */}
+      {/* Header General */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 print:mb-4">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
             <Users className="w-8 h-8 text-blue-600 print:hidden" />
-            <span><span className="text-blue-600">CFP N°1 -</span> Tablero de Inscripciones</span>
+            <span><span className="text-blue-600 print:text-black">CFP N°1 -</span> Tablero de Inscripciones</span>
           </h1>
           <div className="text-slate-500 mt-2 print:hidden flex items-center gap-3 flex-wrap">
             <span>Análisis Demográfico y de Ofertas</span>
@@ -740,203 +755,210 @@ export default function DashboardInscripciones() {
         </Card>
       </div>
 
-      {/* Gráficos de Torta */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 print:hidden">
-        <Card className="p-4 flex flex-col items-center">
-          <h3 className="font-bold text-slate-700 mb-2 w-full text-center border-b pb-2">Distribución por Género</h3>
-          <div className="w-full h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={stats.chartDataGenero} cx="50%" cy="50%" outerRadius={70} innerRadius={40} dataKey="value" label={renderCustomLabel}>
-                  {stats.chartDataGenero.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.key] || COLORS.Unknown} />)}
-                </Pie>
-                <Tooltip formatter={(value, name) => [`${value} inscriptos`, name]} />
-                <Legend verticalAlign="bottom" height={36} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+      {/* Gráficos y Top 5 (Ocultos en impresión) */}
+      <div className="print:hidden">
+        {/* Gráficos de Torta */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="p-4 flex flex-col items-center">
+            <h3 className="font-bold text-slate-700 mb-2 w-full text-center border-b pb-2">Distribución por Género</h3>
+            <div className="w-full h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={stats.chartDataGenero} cx="50%" cy="50%" outerRadius={70} innerRadius={40} dataKey="value" label={renderCustomLabel}>
+                    {stats.chartDataGenero.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.key] || COLORS.Unknown} />)}
+                  </Pie>
+                  <Tooltip formatter={(value, name) => [`${value} inscriptos`, name]} />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
 
-        <Card className="p-4 flex flex-col items-center">
-          <h3 className="font-bold text-slate-700 mb-2 w-full text-center border-b pb-2">Distribución por Turno</h3>
-          <div className="w-full h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={stats.chartDataTurno} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={renderCustomLabel}>
-                  {stats.chartDataTurno.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.key] || COLORS.Unknown} />)}
-                </Pie>
-                <Tooltip formatter={(value, name) => [`${value} inscriptos`, name]} />
-                <Legend verticalAlign="bottom" height={36} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
+          <Card className="p-4 flex flex-col items-center">
+            <h3 className="font-bold text-slate-700 mb-2 w-full text-center border-b pb-2">Distribución por Turno</h3>
+            <div className="w-full h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={stats.chartDataTurno} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={renderCustomLabel}>
+                    {stats.chartDataTurno.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[entry.key] || COLORS.Unknown} />)}
+                  </Pie>
+                  <Tooltip formatter={(value, name) => [`${value} inscriptos`, name]} />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
 
-        <Card className="p-4 flex flex-col items-center">
-          <h3 className="font-bold text-slate-700 mb-2 w-full text-center border-b pb-2">Estado de Inscripciones</h3>
-          <div className="w-full h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={stats.chartDataEstado} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={renderCustomLabel}>
-                  {stats.chartDataEstado.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-                </Pie>
-                <Tooltip formatter={(value, name) => [`${value} inscriptos`, name]} />
-                <Legend verticalAlign="bottom" height={36} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      </div>
-
-      {/* Filtros */}
-      <Card className="p-4 mb-6 sticky top-0 z-20 shadow-md print:hidden">
-        <div className="flex flex-col md:flex-row gap-3 items-center flex-wrap">
-          <div className="flex items-center gap-2 text-slate-600"><Filter className="w-4 h-4" /><span className="font-semibold text-sm">Filtros:</span></div>
-          
-          <select value={filterTipoOferta} onChange={(e) => setFilterTipoOferta(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterTipoOferta !== 'Todos' ? 'bg-purple-50 border-purple-300 text-purple-800' : 'bg-white border-slate-200'}`}>
-            <option value="Todos">Oferta: Todas</option><option value="Capacitación Laboral">Cap. Laboral</option><option value="Curso">Curso</option><option value="Trayecto">Trayecto</option>
-          </select>
-          
-          <select value={filterTurno} onChange={(e) => setFilterTurno(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterTurno !== 'Todos' ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-white border-slate-200'}`}>
-            <option value="Todos">Turno: Todos</option><option value="TM">Mañana</option><option value="TT">Tarde</option><option value="TN">Noche</option>
-          </select>
-          
-          <select value={filterEstado} onChange={(e) => setFilterEstado(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterEstado !== 'Todos' ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-white border-slate-200'}`}>
-            <option value="Todos">Estado: Todos</option>
-            {uniqueEstados.map(est => <option key={est} value={est}>{est}</option>)}
-          </select>
-          
-          <select value={filterActividad} onChange={(e) => setFilterActividad(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer max-w-[150px] truncate ${filterActividad !== 'Todas' ? 'bg-indigo-50 border-indigo-300 text-indigo-800' : 'bg-white border-slate-200'}`}>
-            <option value="Todas">Actividad: Todas</option>
-            {uniqueActivities.map(act => <option key={act} value={act}>{act}</option>)}
-          </select>
-
-          <select value={filterDocente} onChange={(e) => setFilterDocente(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer max-w-[150px] truncate ${filterDocente !== 'Todos' ? 'bg-cyan-50 border-cyan-300 text-cyan-800' : 'bg-white border-slate-200'}`}>
-            <option value="Todos">Docente: Todos</option>
-            {uniqueDocentes.map(doc => <option key={doc} value={doc}>{doc}</option>)}
-            <option value="Sin Asignar">Sin Asignar</option>
-          </select>
-
-          <select value={filterPropuesta} onChange={(e) => setFilterPropuesta(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer max-w-[150px] truncate ${filterPropuesta !== 'Todas' ? 'bg-fuchsia-50 border-fuchsia-300 text-fuchsia-800' : 'bg-white border-slate-200'}`}>
-            <option value="Todas">Propuesta: Todas</option>
-            {uniquePropuestas.map(prop => <option key={prop} value={prop}>{prop}</option>)}
-            <option value="Sin Propuesta">Sin Propuesta</option>
-          </select>
-          
-          <div className="relative flex-1 min-w-[150px]">
-            <Search className={`absolute left-3 top-2.5 w-4 h-4 transition-colors ${searchTerm ? 'text-blue-600' : 'text-slate-400'}`} />
-            <input type="text" placeholder="Buscar nombre / DNI..." className={`w-full pl-10 pr-4 py-2 border rounded-md text-sm outline-none transition-colors ${searchTerm ? 'bg-blue-50 border-blue-300 text-blue-900' : 'bg-white border-slate-200'}`} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-          </div>
-
-          {hasActiveFilters && (
-            <button 
-              onClick={handleClearFilters}
-              className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-md text-sm font-semibold transition-colors"
-              title="Restaurar todos los filtros"
-            >
-              <X className="w-4 h-4" /> Limpiar
-            </button>
-          )}
+          <Card className="p-4 flex flex-col items-center">
+            <h3 className="font-bold text-slate-700 mb-2 w-full text-center border-b pb-2">Estado de Inscripciones</h3>
+            <div className="w-full h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={stats.chartDataEstado} cx="50%" cy="50%" outerRadius={70} dataKey="value" label={renderCustomLabel}>
+                    {stats.chartDataEstado.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                  </Pie>
+                  <Tooltip formatter={(value, name) => [`${value} inscriptos`, name]} />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
         </div>
-      </Card>
 
-      {/* Tablas de Ranking (2 Columnas) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4 print:hidden">
-        
-        {/* Top 5 Actividades */}
-        <Card className="p-4">
-          <h3 className="font-bold text-slate-700 mb-4 border-b pb-2 flex items-center gap-2">
-             <BookOpen className="w-5 h-5 text-blue-500" />
-             Top 5 Actividades Más Demandadas
-          </h3>
-          <div className="w-full overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-slate-500 border-b uppercase text-xs">
-                <tr>
-                  <th className="p-3 w-12 text-center">#</th>
-                  <th className="p-3">Actividad</th>
-                  <th className="p-3 text-right w-32">Inscriptos</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {stats.chartDataActividad.slice(0, 5).map((act, index) => (
-                  <tr key={index} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-3 text-center font-bold text-slate-400">{index + 1}</td>
-                    <td className="p-3 font-medium text-slate-700" title={act.fullName}>{act.name}</td>
-                    <td className="p-3 text-right">
-                      <span className="inline-block bg-blue-100 text-blue-800 py-1 px-3 rounded-full font-bold">
-                        {act.value}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                {stats.chartDataActividad.length === 0 && (
-                  <tr>
-                    <td colSpan="3" className="p-8 text-center text-slate-400">
-                      No hay datos de actividades para mostrar
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        {/* Filtros */}
+        <Card className="p-4 mb-6 sticky top-0 z-20 shadow-md">
+          <div className="flex flex-col md:flex-row gap-3 items-center flex-wrap">
+            <div className="flex items-center gap-2 text-slate-600"><Filter className="w-4 h-4" /><span className="font-semibold text-sm">Filtros:</span></div>
+            
+            <select value={filterTipoOferta} onChange={(e) => setFilterTipoOferta(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterTipoOferta !== 'Todos' ? 'bg-purple-50 border-purple-300 text-purple-800' : 'bg-white border-slate-200'}`}>
+              <option value="Todos">Oferta: Todas</option><option value="Capacitación Laboral">Cap. Laboral</option><option value="Curso">Curso</option><option value="Trayecto">Trayecto</option>
+            </select>
+            
+            <select value={filterTurno} onChange={(e) => setFilterTurno(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterTurno !== 'Todos' ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-white border-slate-200'}`}>
+              <option value="Todos">Turno: Todos</option><option value="TM">Mañana</option><option value="TT">Tarde</option><option value="TN">Noche</option>
+            </select>
+            
+            <select value={filterEstado} onChange={(e) => setFilterEstado(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterEstado !== 'Todos' ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-white border-slate-200'}`}>
+              <option value="Todos">Estado: Todos</option>
+              {uniqueEstados.map(est => <option key={est} value={est}>{est}</option>)}
+            </select>
+            
+            <select value={filterActividad} onChange={(e) => setFilterActividad(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer max-w-[150px] truncate ${filterActividad !== 'Todas' ? 'bg-indigo-50 border-indigo-300 text-indigo-800' : 'bg-white border-slate-200'}`}>
+              <option value="Todas">Actividad: Todas</option>
+              {uniqueActivities.map(act => <option key={act} value={act}>{act}</option>)}
+            </select>
+
+            <select value={filterDocente} onChange={(e) => setFilterDocente(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer max-w-[150px] truncate ${filterDocente !== 'Todos' ? 'bg-cyan-50 border-cyan-300 text-cyan-800' : 'bg-white border-slate-200'}`}>
+              <option value="Todos">Docente: Todos</option>
+              {uniqueDocentes.map(doc => <option key={doc} value={doc}>{doc}</option>)}
+              <option value="Sin Asignar">Sin Asignar</option>
+            </select>
+
+            <select value={filterPropuesta} onChange={(e) => setFilterPropuesta(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer max-w-[150px] truncate ${filterPropuesta !== 'Todas' ? 'bg-fuchsia-50 border-fuchsia-300 text-fuchsia-800' : 'bg-white border-slate-200'}`}>
+              <option value="Todas">Propuesta: Todas</option>
+              {uniquePropuestas.map(prop => <option key={prop} value={prop}>{prop}</option>)}
+              <option value="Sin Propuesta">Sin Propuesta</option>
+            </select>
+            
+            <div className="relative flex-1 min-w-[150px]">
+              <Search className={`absolute left-3 top-2.5 w-4 h-4 transition-colors ${searchTerm ? 'text-blue-600' : 'text-slate-400'}`} />
+              <input type="text" placeholder="Buscar nombre / DNI..." className={`w-full pl-10 pr-4 py-2 border rounded-md text-sm outline-none transition-colors ${searchTerm ? 'bg-blue-50 border-blue-300 text-blue-900' : 'bg-white border-slate-200'}`} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            </div>
+
+            {hasActiveFilters && (
+              <button 
+                onClick={handleClearFilters}
+                className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-md text-sm font-semibold transition-colors"
+                title="Restaurar todos los filtros"
+              >
+                <X className="w-4 h-4" /> Limpiar
+              </button>
+            )}
           </div>
         </Card>
 
-        {/* Top 5 Propuestas */}
-        <Card className="p-4 border-t-4 border-t-fuchsia-400">
-          <h3 className="font-bold text-slate-700 mb-4 border-b pb-2 flex items-center gap-2">
-             <Award className="w-5 h-5 text-fuchsia-500" />
-             Top 5 Propuestas Más Demandadas
-          </h3>
-          <div className="w-full overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-fuchsia-50 text-fuchsia-600 border-b border-fuchsia-100 uppercase text-xs">
-                <tr>
-                  <th className="p-3 w-12 text-center">#</th>
-                  <th className="p-3">Propuesta Formativa</th>
-                  <th className="p-3 text-right w-32">Inscriptos</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-fuchsia-50">
-                {stats.chartDataPropuesta.slice(0, 5).map((prop, index) => (
-                  <tr key={index} className="hover:bg-fuchsia-50/50 transition-colors">
-                    <td className="p-3 text-center font-bold text-fuchsia-300">{index + 1}</td>
-                    <td className="p-3 font-semibold text-slate-800">{prop.fullName}</td>
-                    <td className="p-3 text-right">
-                      <span className="inline-block bg-fuchsia-100 text-fuchsia-800 border border-fuchsia-200 py-1 px-3 rounded-full font-bold">
-                        {prop.value}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-                {stats.chartDataPropuesta.length === 0 && (
+        {/* Tablas de Ranking (2 Columnas) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
+          <Card className="p-4 border-t-4 border-t-blue-400">
+            <h3 className="font-bold text-slate-700 mb-4 border-b pb-2 flex items-center gap-2">
+               <BookOpen className="w-5 h-5 text-blue-500" />
+               Top 5 Actividades Más Demandadas
+            </h3>
+            <div className="w-full overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50 text-slate-500 border-b uppercase text-xs">
                   <tr>
-                    <td colSpan="3" className="p-8 text-center text-slate-400">
-                      Cargue el archivo de docentes para ver las propuestas.
-                    </td>
+                    <th className="p-3 w-12 text-center">#</th>
+                    <th className="p-3">Actividad</th>
+                    <th className="p-3 text-right w-32">Inscriptos</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {stats.chartDataActividad.slice(0, 5).map((act, index) => (
+                    <tr key={index} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-3 text-center font-bold text-slate-400">{index + 1}</td>
+                      <td className="p-3 font-medium text-slate-700" title={act.fullName}>{act.name}</td>
+                      <td className="p-3 text-right">
+                        <span className="inline-block bg-blue-100 text-blue-800 py-1 px-3 rounded-full font-bold">
+                          {act.value}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {stats.chartDataActividad.length === 0 && (
+                    <tr>
+                      <td colSpan="3" className="p-8 text-center text-slate-400">
+                        No hay datos de actividades para mostrar
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Card>
 
+          <Card className="p-4 border-t-4 border-t-fuchsia-400">
+            <h3 className="font-bold text-slate-700 mb-4 border-b pb-2 flex items-center gap-2">
+               <Award className="w-5 h-5 text-fuchsia-500" />
+               Top 5 Propuestas Más Demandadas
+            </h3>
+            <div className="w-full overflow-x-auto">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-fuchsia-50 text-fuchsia-600 border-b border-fuchsia-100 uppercase text-xs">
+                  <tr>
+                    <th className="p-3 w-12 text-center">#</th>
+                    <th className="p-3">Propuesta Formativa</th>
+                    <th className="p-3 text-right w-32">Inscriptos</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-fuchsia-50">
+                  {stats.chartDataPropuesta.slice(0, 5).map((prop, index) => (
+                    <tr key={index} className="hover:bg-fuchsia-50/50 transition-colors">
+                      <td className="p-3 text-center font-bold text-fuchsia-300">{index + 1}</td>
+                      <td className="p-3 font-semibold text-slate-800" title={prop.fullName}>{prop.name}</td>
+                      <td className="p-3 text-right">
+                        <span className="inline-block bg-fuchsia-100 text-fuchsia-800 border border-fuchsia-200 py-1 px-3 rounded-full font-bold">
+                          {prop.value}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {stats.chartDataPropuesta.length === 0 && (
+                    <tr>
+                      <td colSpan="3" className="p-8 text-center text-slate-400">
+                        Cargue el archivo de docentes para ver las propuestas.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        </div>
+
+        {/* Botones para alternar Gráficos Completos */}
+        <div className="flex flex-col md:flex-row justify-center md:justify-start gap-4 mb-8">
+          <button 
+            onClick={() => setShowFullActChart(!showFullActChart)}
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm ${showFullActChart ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200'}`}
+          >
+            <BarChartIcon className="w-5 h-5" />
+            {showFullActChart ? 'Ocultar Gráfico de Actividades' : 'Ver Distribución Completa por Actividad'}
+          </button>
+
+          <button 
+            onClick={() => setShowFullPropChart(!showFullPropChart)}
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm ${showFullPropChart ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-fuchsia-100 text-fuchsia-700 hover:bg-fuchsia-200 border border-fuchsia-200'}`}
+          >
+            <Award className="w-5 h-5" />
+            {showFullPropChart ? 'Ocultar Gráfico de Propuestas' : 'Ver Distribución Completa por Propuestas'}
+          </button>
+        </div>
       </div>
 
-      {/* Botón para alternar Gráfico Completo */}
-      <div className="flex justify-center md:justify-start mb-8 print:hidden">
-        <button 
-          onClick={() => setShowFullActChart(!showFullActChart)}
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm ${showFullActChart ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200'}`}
-        >
-          <BarChartIcon className="w-5 h-5" />
-          {showFullActChart ? 'Ocultar Gráfico Completo de Actividades' : 'Ver Distribución Completa por Actividad'}
-        </button>
-      </div>
-
-      {/* Gráfico Completo de Actividades (Visible según Estado) */}
+      {/* Gráfico Completo de Actividades (Visible según Estado, y Oculto en impresión) */}
       {showFullActChart && (
-        <Card className="p-4 mb-8 print:block animate-in fade-in zoom-in duration-300">
+        <Card className="p-4 mb-8 print:hidden animate-in fade-in zoom-in duration-300">
           <h3 className="font-bold text-slate-700 mb-4 border-b pb-2 flex items-center gap-2">
             <BarChartIcon className="w-5 h-5 text-blue-600" />
             Distribución Completa de Inscriptos por Actividad
@@ -975,11 +997,59 @@ export default function DashboardInscripciones() {
         </Card>
       )}
 
+      {/* Gráfico Completo de Propuestas (Visible según Estado, y Oculto en impresión) */}
+      {showFullPropChart && (
+        <Card className="p-4 mb-8 print:hidden animate-in fade-in zoom-in duration-300">
+          <h3 className="font-bold text-slate-700 mb-4 border-b pb-2 flex items-center gap-2">
+            <Award className="w-5 h-5 text-fuchsia-600" />
+            Distribución Completa de Inscriptos por Propuesta
+          </h3>
+          <div className="w-full overflow-hidden" style={{ height: fullPropChartHeight }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={stats.chartDataPropuesta} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                <XAxis type="number" />
+                <YAxis dataKey="name" type="category" width={220} tick={{fontSize: 12, fill: '#475569'}} />
+                <Tooltip 
+                  cursor={{fill: '#fdf4ff'}}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-xl max-w-sm">
+                          <p className="font-bold text-slate-800 text-sm mb-1">{data.fullName}</p>
+                          <p className="text-fuchsia-600 font-semibold text-sm">
+                            Total Inscriptos: {data.value}
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }} 
+                />
+                <Bar dataKey="value" fill="#d946ef" radius={[0, 4, 4, 0]} barSize={24}>
+                  {stats.chartDataPropuesta.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#d946ef' : '#e879f9'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      )}
+
       {/* Tabla Principal */}
-      <Card className="overflow-hidden print:shadow-none print:border-none">
-        <div className="p-4 border-b bg-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print:bg-white print:border-none print:p-0 print:mb-4">
-          <div className="flex flex-col gap-1">
-            <h3 className="font-bold text-slate-700">Listado de Alumnos ({filteredData.length})</h3>
+      <Card className="overflow-hidden print:shadow-none print:border-none print:rounded-none">
+        
+        {/* ENCABEZADO DE TABLA PARA WEB Y PARA IMPRESIÓN */}
+        <div className="p-4 border-b bg-slate-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print:bg-white print:border-none print:p-0 print:mb-4 w-full">
+          
+          <div className="flex flex-col gap-1 w-full">
+            <h3 className="font-bold text-slate-700 text-lg print:text-2xl print:mb-1">
+              Listado de Alumnos ({filteredData.length})
+            </h3>
+            
+            {/* Etiquetas normales para la vista Web */}
             {activeFiltersLabels.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-1 print:hidden">
                 {activeFiltersLabels.map(label => (
@@ -989,37 +1059,62 @@ export default function DashboardInscripciones() {
                 ))}
               </div>
             )}
+
+            {/* SECCIÓN EXCLUSIVA PARA LA IMPRESIÓN */}
+            <div className="hidden print:block text-sm text-black border-b-2 border-slate-800 pb-3 mt-2 w-full">
+               <div className="grid grid-cols-1 gap-1.5 leading-relaxed">
+                  <p><span className="font-bold">Propuesta Formativa:</span> {filterPropuesta}</p>
+                  <p><span className="font-bold">Actividad:</span> {filterActividad}</p>
+                  <p><span className="font-bold">Docente a cargo:</span> {filterDocente}</p>
+                  
+                  {/* Si hay otros filtros aplicados, mostrarlos sutilmente abajo */}
+                  {(filterTurno !== 'Todos' || filterEstado !== 'Todos' || filterTipoOferta !== 'Todos') && (
+                     <p className="mt-1 text-slate-600 text-xs italic">
+                       Filtros adicionales: {[
+                         filterTurno !== 'Todos' ? `Turno: ${filterTurno}` : null,
+                         filterEstado !== 'Todos' ? `Estado: ${filterEstado}` : null,
+                         filterTipoOferta !== 'Todos' ? `Oferta: ${filterTipoOferta}` : null
+                       ].filter(Boolean).join(' | ')}
+                     </p>
+                  )}
+               </div>
+            </div>
+
           </div>
-          <div className="flex gap-2 print:hidden">
-            <button onClick={() => window.print()} className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-sm font-medium transition">
+
+          <div className="flex gap-2 print:hidden shrink-0">
+            <button onClick={() => window.print()} className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-md text-sm font-medium transition shadow-sm border border-slate-200">
               <Printer className="w-4 h-4" /> Imprimir Listado
             </button>
-            <button onClick={handleDownloadCSV} className="flex items-center gap-2 px-3 py-1.5 bg-green-100 hover:bg-green-200 text-green-700 rounded-md text-sm font-medium transition">
+            <button onClick={handleDownloadCSV} className="flex items-center gap-2 px-3 py-1.5 bg-green-100 hover:bg-green-200 text-green-800 rounded-md text-sm font-medium transition shadow-sm border border-green-200">
               <Download className="w-4 h-4" /> Exportar CSV
             </button>
           </div>
+
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+
+        {/* CONTENIDO DE LA TABLA */}
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-sm print:text-[11px]">
             <thead className="bg-slate-100 uppercase text-xs print:bg-white print:border-b-2 print:border-black">
               <tr>
-                <th className="p-4 print:p-2">Alumno</th>
-                <th className="p-4 print:p-2">DNI</th>
-                <th className="p-4 print:p-2">Turno</th>
-                <th className="p-4 print:p-2">Teléfono</th>
-                <th className="p-4 print:p-2">Mail</th>
-                <th className="p-4 print:p-2">Estado</th>
+                <th className="p-4 print:py-2 print:px-1">Alumno</th>
+                <th className="p-4 print:py-2 print:px-1">DNI</th>
+                <th className="p-4 print:py-2 print:px-1">Turno</th>
+                <th className="p-4 print:py-2 print:px-1">Teléfono</th>
+                <th className="p-4 print:py-2 print:px-1">Mail</th>
+                <th className="p-4 print:py-2 print:px-1">Estado</th>
               </tr>
             </thead>
-            <tbody className="divide-y">
+            <tbody className="divide-y divide-slate-100 print:divide-slate-300">
               {filteredData.map((row, i) => (
                 <tr key={i} className="hover:bg-slate-50 print:hover:bg-transparent">
-                  <td className="p-4 font-medium print:p-2">{row.alumno}</td>
-                  <td className="p-4 text-slate-500 print:p-2">{row.dni}</td>
-                  <td className="p-4 print:p-2"><Badge type={row.turno}>{row.turno}</Badge></td>
-                  <td className="p-4 text-slate-500 print:p-2">{row.telefono}</td>
-                  <td className="p-4 text-slate-500 print:p-2">{row.email}</td>
-                  <td className="p-4 print:p-2"><Badge type={row.estado}>{row.estado}</Badge></td>
+                  <td className="p-4 font-medium print:py-2 print:px-1">{row.alumno}</td>
+                  <td className="p-4 text-slate-500 print:text-black print:py-2 print:px-1">{row.dni}</td>
+                  <td className="p-4 print:py-2 print:px-1"><Badge type={row.turno}>{row.turno}</Badge></td>
+                  <td className="p-4 text-slate-500 print:text-black print:py-2 print:px-1">{row.telefono}</td>
+                  <td className="p-4 text-slate-500 print:text-black print:py-2 print:px-1">{row.email}</td>
+                  <td className="p-4 print:py-2 print:px-1"><Badge type={row.estado}>{row.estado}</Badge></td>
                 </tr>
               ))}
             </tbody>
@@ -1029,7 +1124,8 @@ export default function DashboardInscripciones() {
           )}
         </div>
       </Card>
-      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.12 - Tablero Completo Integrado</div>
+      
+      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.13 - Gráficos Expandibles</div>
     </div>
   );
 }
