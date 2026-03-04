@@ -6,7 +6,7 @@ import {
 import { 
   Upload, Users, Filter, Search, 
   UserCheck, Trash2, Download, Printer, RefreshCw, AlertTriangle,
-  Sun, Moon, Sunset, BookOpen, Award, X, BarChart as BarChartIcon
+  Sun, Moon, Sunset, BookOpen, Award, X, BarChart as BarChartIcon, Target
 } from 'lucide-react';
 
 // ==============================================================================
@@ -15,7 +15,7 @@ import {
 const DATA_SOURCE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-4w1Lcx6FefPFWYVxlU_pMxGx5j_r4xENfPmhuiL2Y6qLRggLixxcHFudlXl4BZlBrELxln97B7Hu/pub?gid=1856440278&single=true&output=csv"; 
 
 // ==============================================================================
-// BASE DE DOCENTES PREDEFINIDA (Reemplazar con el contenido de tu CSV real)
+// BASE DE DOCENTES PREDEFINIDA
 // ==============================================================================
 const DEFAULT_DOCENTES_CSV = `ApellidoDocente;Nombres;dni;Actividad;Comisión;Modalidad;Propuesta
 ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_16_ME_1)Montaje de Líneas y Circuitos Eléctricos de Muy Baja Tensión;CFP N° 1 - Río Cuarto - 1993 - 02-TM;Presencial;Electricista en Inmuebles
@@ -132,6 +132,23 @@ ULIBARRI;KARINA;25475562;(CT_0543)ESPECIALISTA EN TRATAMIENTOS ESTÉTICO CORPORA
 ULIBARRI;KARINA;25475562;(CT_0547)ESTÉTICA CORPORAL;CFP N° 1 - Río Cuarto - 1993 - 01-TT;Presencial;ESTÉTICA CORPORAL
 ULIBARRI;KARINA;25475562;(CT_0547)ESTÉTICA CORPORAL;CFP N° 1 - Río Cuarto - 1993 - 02-TN;Presencial;ESTÉTICA CORPORAL
 `;
+
+// ==============================================================================
+// BASE DE MÓDULOS INICIALES PREDEFINIDA
+// ==============================================================================
+const DEFAULT_MODULOS_INICIALES_CSV = `TRAYECTOS;Actividades
+PELUQUERO/A;PIEL Y ANEXOS CUTANEOS
+INSTALADOR Y SOPORTE SISTEMAS INFORMÁTICOS;ORGANIZACIÓN DEL COMPUTADOR
+MECÁNICO DE BICICLETAS;FUNCION ESTRUCTURA Y SISTEMA DE TRANSMISION
+ELECTRICISTA INDUSTRIAL;TECNOLOGIA DE CONTROL
+MECÁNICO DE MOTOS;Mediciones y diagnostico Mecanico
+MECÁNICO DE MOTOS;SISTEMA DE ALIMENTACION Y ENCENDIDO
+ELECTRICISTA DE AUTOMOTORES;MEDICIONES Y DIAGNOSTICO ELECTRICO
+AUXILIAR MECÁNICO DE MOTORES DE COMBUSTIÓN INTERNA;SISTEMA MOTOR COMBUSTION INTERNA
+ELECTRICISTA EN INMUEBLES;MONTAJE DE LÌNEAS  Y CIRCUITOS ELÈCTRICOS DE MUY BAJA TENSIÒN
+MONTADOR ELECTRICISTA DOMICILIARIO;CIRCUITOS ELECTRICOS Y MEDICIONES
+MECÁNICO SISTEMAS DE SUSPENSIÓN Y DIRECCIÓN;MEDICIONES Y DIAGNOSTICO MECANICO
+`;
 // ==============================================================================
 
 // --- Utilitarios para procesamiento de CSV ---
@@ -180,7 +197,7 @@ const parseCSV = (text) => {
 // --- Helper de Normalización para Cruce de Datos ---
 const normalizeKey = (str) => {
   if (!str) return '';
-  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, '');
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, '');
 };
 
 // Extrae SOLO el código entre paréntesis para hacer un match perfecto
@@ -257,6 +274,7 @@ export default function DashboardInscripciones() {
   const [rawData, setRawData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [docentesMap, setDocentesMap] = useState({}); 
+  const [modulosInicialesSet, setModulosInicialesSet] = useState([]);
   
   // Filtros
   const [filterTurno, setFilterTurno] = useState('Todos');
@@ -270,6 +288,7 @@ export default function DashboardInscripciones() {
   // Estados para mostrar gráficos completos
   const [showFullActChart, setShowFullActChart] = useState(false);
   const [showFullPropChart, setShowFullPropChart] = useState(false);
+  const [showFullInicialesChart, setShowFullInicialesChart] = useState(false);
 
   const [dataSource, setDataSource] = useState('sample');
   const [fileName, setFileName] = useState('');
@@ -278,17 +297,25 @@ export default function DashboardInscripciones() {
   const [lastUpdateDate, setLastUpdateDate] = useState(null);
 
   useEffect(() => {
+    // Cargar Docentes
     if (DEFAULT_DOCENTES_CSV.trim() !== '') {
       processDocentesCSV(DEFAULT_DOCENTES_CSV, false);
     }
-
     const storedDocentes = localStorage.getItem('dashboard_docentes_map');
     if (storedDocentes) {
-      try {
-        setDocentesMap(prev => ({ ...prev, ...JSON.parse(storedDocentes) }));
-      } catch (e) {
-        console.warn("No se pudo cargar docentes locales.");
-      }
+      try { setDocentesMap(prev => ({ ...prev, ...JSON.parse(storedDocentes) })); } 
+      catch (e) { console.warn("No se pudo cargar docentes locales."); }
+    }
+
+    // Cargar Módulos Iniciales
+    if (DEFAULT_MODULOS_INICIALES_CSV.trim() !== '') {
+      const parsedModulos = parseCSV(DEFAULT_MODULOS_INICIALES_CSV);
+      // Tomamos la columna 2 (índice 1) que contiene las actividades, ignorando vacíos
+      const iniciales = parsedModulos.slice(1)
+        .map(row => row[1])
+        .filter(Boolean)
+        .map(normalizeKey);
+      setModulosInicialesSet(iniciales);
     }
 
     loadData();
@@ -593,11 +620,13 @@ export default function DashboardInscripciones() {
   };
 
   const stats = useMemo(() => {
+    let totalIniciales = 0;
     const porTurno = { TM: 0, TT: 0, TN: 0, Desconocido: 0 };
     const porEstado = { Aceptada: 0, Pendiente: 0, Rechazada: 0 };
     const porGenero = { Femenino: 0, Masculino: 0, Desconocido: 0 };
     const porActividad = {};
     const porPropuesta = {};
+    const porActividadInicial = {};
 
     filteredData.forEach(item => {
       if (porTurno[item.turno] !== undefined) porTurno[item.turno]++; else porTurno.Desconocido++;
@@ -611,10 +640,27 @@ export default function DashboardInscripciones() {
       if (item.propuesta && item.propuesta !== 'Sin Propuesta') {
         porPropuesta[item.propuesta] = (porPropuesta[item.propuesta] || 0) + 1;
       }
+
+      // Lógica para Actividades Iniciales, Cap. Laborales y Cursos
+      const isCapOrCurso = item.tipoOferta === 'Capacitación Laboral' || item.tipoOferta === 'Curso';
+      const actNorm = normalizeKey(act);
+      
+      // Chequeo robusto para saber si es un módulo inicial de un trayecto
+      const isTrayectoInicial = item.tipoOferta === 'Trayecto' && modulosInicialesSet.some(mi => {
+         return actNorm === mi || 
+               (actNorm.length > 15 && mi.length > 15 && (actNorm.substring(0, 15) === mi.substring(0, 15)));
+      });
+
+      if (isCapOrCurso || isTrayectoInicial) {
+         porActividadInicial[act] = (porActividadInicial[act] || 0) + 1;
+         totalIniciales++;
+      }
     });
 
     return { 
-      total: filteredData.length, porTurno, porEstado, porGenero, 
+      total: filteredData.length, 
+      totalIniciales,
+      porTurno, porEstado, porGenero, 
       chartDataTurno: [
         { name: 'Mañana', value: porTurno.TM, key: 'TM' }, 
         { name: 'Tarde', value: porTurno.TT, key: 'TT' }, 
@@ -638,12 +684,18 @@ export default function DashboardInscripciones() {
         name: key.length > 35 ? key.substring(0, 35) + '...' : key, 
         fullName: key, 
         value: porPropuesta[key] 
+      })).sort((a, b) => b.value - a.value),
+      chartDataIniciales: Object.keys(porActividadInicial).map(key => ({
+        name: key.length > 35 ? key.substring(0, 35) + '...' : key, 
+        fullName: key, 
+        value: porActividadInicial[key] 
       })).sort((a, b) => b.value - a.value)
     };
-  }, [filteredData]);
+  }, [filteredData, modulosInicialesSet]);
 
   const fullChartHeight = Math.max(400, stats.chartDataActividad.length * 40);
   const fullPropChartHeight = Math.max(400, stats.chartDataPropuesta.length * 40);
+  const fullInicialesChartHeight = Math.max(400, stats.chartDataIniciales.length * 40);
 
   // Construir lista de etiquetas de filtros activos para la web
   const activeFiltersLabels = [];
@@ -716,41 +768,70 @@ export default function DashboardInscripciones() {
       )}
 
       {/* Tarjetas KPI */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8 print:grid-cols-6 print:gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8 print:grid-cols-7 print:gap-2">
         <Card className="p-4 border-l-4 border-slate-500">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-slate-100 rounded-full text-slate-600 print:hidden"><Users className="w-5 h-5" /></div>
-            <div><p className="text-xs text-slate-500 font-medium">Total Inscriptos</p><p className="text-xl font-bold">{stats.total}</p></div>
+            <div>
+              <p className="text-xs text-slate-500 font-medium">Total Inscriptos</p>
+              <p className="text-xl font-bold">{stats.total}</p>
+            </div>
           </div>
         </Card>
+        
+        <Card className="p-4 border-l-4 border-emerald-500">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-emerald-50 rounded-full text-emerald-600 print:hidden"><Target className="w-5 h-5" /></div>
+            <div>
+              <p className="text-[11px] leading-tight text-slate-500 font-medium">Insc. Módulos<br/>Iniciales</p>
+              <p className="text-xl font-bold">{stats.totalIniciales}</p>
+            </div>
+          </div>
+        </Card>
+
         <Card className="p-4 border-l-4 border-pink-500">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-pink-50 rounded-full text-pink-600 print:hidden"><UserCheck className="w-5 h-5" /></div>
-            <div><p className="text-xs text-slate-500 font-medium">Mujeres (Est.)</p><p className="text-xl font-bold">{stats.porGenero.Femenino}</p></div>
+            <div>
+              <p className="text-xs text-slate-500 font-medium">Mujeres (Est.)</p>
+              <p className="text-xl font-bold">{stats.porGenero.Femenino}</p>
+            </div>
           </div>
         </Card>
         <Card className="p-4 border-l-4 border-blue-500">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-50 rounded-full text-blue-600 print:hidden"><UserCheck className="w-5 h-5" /></div>
-            <div><p className="text-xs text-slate-500 font-medium">Hombres (Est.)</p><p className="text-xl font-bold">{stats.porGenero.Masculino}</p></div>
+            <div>
+              <p className="text-xs text-slate-500 font-medium">Hombres (Est.)</p>
+              <p className="text-xl font-bold">{stats.porGenero.Masculino}</p>
+            </div>
           </div>
         </Card>
         <Card className="p-4 border-l-4 border-amber-500">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-amber-50 rounded-full text-amber-600 print:hidden"><Sun className="w-5 h-5" /></div>
-            <div><p className="text-xs text-slate-500 font-medium">Turno Mañana</p><p className="text-xl font-bold">{stats.porTurno.TM}</p></div>
+            <div>
+              <p className="text-xs text-slate-500 font-medium">Turno Mañana</p>
+              <p className="text-xl font-bold">{stats.porTurno.TM}</p>
+            </div>
           </div>
         </Card>
         <Card className="p-4 border-l-4 border-orange-500">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-orange-50 rounded-full text-orange-600 print:hidden"><Sunset className="w-5 h-5" /></div>
-            <div><p className="text-xs text-slate-500 font-medium">Turno Tarde</p><p className="text-xl font-bold">{stats.porTurno.TT}</p></div>
+            <div>
+              <p className="text-xs text-slate-500 font-medium">Turno Tarde</p>
+              <p className="text-xl font-bold">{stats.porTurno.TT}</p>
+            </div>
           </div>
         </Card>
         <Card className="p-4 border-l-4 border-indigo-500">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-indigo-50 rounded-full text-indigo-600 print:hidden"><Moon className="w-5 h-5" /></div>
-            <div><p className="text-xs text-slate-500 font-medium">Turno Noche</p><p className="text-xl font-bold">{stats.porTurno.TN}</p></div>
+            <div>
+              <p className="text-xs text-slate-500 font-medium">Turno Noche</p>
+              <p className="text-xl font-bold">{stats.porTurno.TN}</p>
+            </div>
           </div>
         </Card>
       </div>
@@ -937,7 +1018,7 @@ export default function DashboardInscripciones() {
         </div>
 
         {/* Botones para alternar Gráficos Completos */}
-        <div className="flex flex-col md:flex-row justify-center md:justify-start gap-4 mb-8">
+        <div className="flex flex-wrap justify-center md:justify-start gap-4 mb-8">
           <button 
             onClick={() => setShowFullActChart(!showFullActChart)}
             className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm ${showFullActChart ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200'}`}
@@ -953,10 +1034,18 @@ export default function DashboardInscripciones() {
             <Award className="w-5 h-5" />
             {showFullPropChart ? 'Ocultar Gráfico de Propuestas' : 'Ver Distribución Completa por Propuestas'}
           </button>
+
+          <button 
+            onClick={() => setShowFullInicialesChart(!showFullInicialesChart)}
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold transition-all shadow-sm ${showFullInicialesChart ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border border-emerald-200'}`}
+          >
+            <Target className="w-5 h-5" />
+            {showFullInicialesChart ? 'Ocultar Actividades Iniciales' : 'Ver Distribución Actividades Iniciales'}
+          </button>
         </div>
       </div>
 
-      {/* Gráfico Completo de Actividades (Visible según Estado, y Oculto en impresión) */}
+      {/* Gráfico Completo de Actividades */}
       {showFullActChart && (
         <Card className="p-4 mb-8 print:hidden animate-in fade-in zoom-in duration-300">
           <h3 className="font-bold text-slate-700 mb-4 border-b pb-2 flex items-center gap-2">
@@ -977,19 +1066,14 @@ export default function DashboardInscripciones() {
                       return (
                         <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-xl max-w-sm">
                           <p className="font-bold text-slate-800 text-sm mb-1">{data.fullName}</p>
-                          <p className="text-blue-600 font-semibold text-sm">
-                            Total Inscriptos: {data.value}
-                          </p>
+                          <p className="text-blue-600 font-semibold text-sm">Total Inscriptos: {data.value}</p>
                         </div>
                       );
-                    }
-                    return null;
+                    } return null;
                   }} 
                 />
                 <Bar dataKey="value" fill="#3B82F6" radius={[0, 4, 4, 0]} barSize={24}>
-                  {stats.chartDataActividad.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#3B82F6' : '#60A5FA'} />
-                  ))}
+                  {stats.chartDataActividad.map((entry, index) => <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#3B82F6' : '#60A5FA'} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -997,7 +1081,7 @@ export default function DashboardInscripciones() {
         </Card>
       )}
 
-      {/* Gráfico Completo de Propuestas (Visible según Estado, y Oculto en impresión) */}
+      {/* Gráfico Completo de Propuestas */}
       {showFullPropChart && (
         <Card className="p-4 mb-8 print:hidden animate-in fade-in zoom-in duration-300">
           <h3 className="font-bold text-slate-700 mb-4 border-b pb-2 flex items-center gap-2">
@@ -1018,19 +1102,51 @@ export default function DashboardInscripciones() {
                       return (
                         <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-xl max-w-sm">
                           <p className="font-bold text-slate-800 text-sm mb-1">{data.fullName}</p>
-                          <p className="text-fuchsia-600 font-semibold text-sm">
-                            Total Inscriptos: {data.value}
-                          </p>
+                          <p className="text-fuchsia-600 font-semibold text-sm">Total Inscriptos: {data.value}</p>
                         </div>
                       );
-                    }
-                    return null;
+                    } return null;
                   }} 
                 />
                 <Bar dataKey="value" fill="#d946ef" radius={[0, 4, 4, 0]} barSize={24}>
-                  {stats.chartDataPropuesta.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#d946ef' : '#e879f9'} />
-                  ))}
+                  {stats.chartDataPropuesta.map((entry, index) => <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#d946ef' : '#e879f9'} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      )}
+
+      {/* Gráfico de Actividades Iniciales */}
+      {showFullInicialesChart && (
+        <Card className="p-4 mb-8 print:hidden animate-in fade-in zoom-in duration-300 border-t-4 border-t-emerald-400">
+          <h3 className="font-bold text-slate-700 mb-2 border-b pb-2 flex items-center gap-2">
+            <Target className="w-5 h-5 text-emerald-600" />
+            Distribución de Actividades Iniciales (Cursos, Cap. Laborales y Módulos Iniciales de Trayectos)
+          </h3>
+          <p className="text-xs text-slate-500 mb-4">Información generada dinámicamente según archivo adjunto de configuración.</p>
+          <div className="w-full overflow-hidden" style={{ height: fullInicialesChartHeight }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={stats.chartDataIniciales} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                <XAxis type="number" />
+                <YAxis dataKey="name" type="category" width={220} tick={{fontSize: 12, fill: '#475569'}} />
+                <Tooltip 
+                  cursor={{fill: '#ecfdf5'}}
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-xl max-w-sm">
+                          <p className="font-bold text-slate-800 text-sm mb-1">{data.fullName}</p>
+                          <p className="text-emerald-600 font-semibold text-sm">Total Inscriptos: {data.value}</p>
+                        </div>
+                      );
+                    } return null;
+                  }} 
+                />
+                <Bar dataKey="value" fill="#10B981" radius={[0, 4, 4, 0]} barSize={24}>
+                  {stats.chartDataIniciales.map((entry, index) => <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#10B981' : '#34D399'} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -1125,7 +1241,7 @@ export default function DashboardInscripciones() {
         </div>
       </Card>
       
-      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.13 - Gráficos Expandibles</div>
+      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.15 - Indicadores</div>
     </div>
   );
 }
