@@ -139,9 +139,9 @@ ULIBARRI;KARINA;25475562;(CT_0547)ESTÉTICA CORPORAL;CFP N° 1 - Río Cuarto - 1
 const DEFAULT_MODULOS_INICIALES_CSV = `TRAYECTOS;Actividades
 PELUQUERO/A;PIEL Y ANEXOS CUTANEOS
 INSTALADOR Y SOPORTE SISTEMAS INFORMÁTICOS;ORGANIZACIÓN DEL COMPUTADOR
-MAQUILLADOR/A PROFESIONAL;PIEL Y ANEXOS CUTANEOS
 MECÁNICO DE BICICLETAS;FUNCION ESTRUCTURA Y SISTEMA DE TRANSMISION
 ELECTRICISTA INDUSTRIAL;TECNOLOGIA DE CONTROL
+MAQUILLADOR/A PROFESIONAL;PIEL Y ANEXOS CUTANEOS
 MECÁNICO DE MOTOS;Mediciones y diagnostico Mecanico
 MECÁNICO DE MOTOS;SISTEMA DE ALIMENTACION Y ENCENDIDO
 ELECTRICISTA DE AUTOMOTORES;MEDICIONES Y DIAGNOSTICO ELECTRICO
@@ -837,8 +837,96 @@ export default function DashboardInscripciones() {
         </Card>
       </div>
 
-      {/* Gráficos y Top 5 (Ocultos en impresión) */}
       <div className="print:hidden">
+
+        {/* ========================================================= */}
+        {/* SECCIÓN DE FILTROS RENOVADA (AHORA ARRIBA DE LOS GRÁFICOS) */}
+        {/* ========================================================= */}
+        <Card className="p-5 mb-8 sticky top-0 z-20 shadow-md bg-white/95 backdrop-blur-sm border-t-4 border-t-blue-500">
+          
+          {/* Fila 1: Buscador Principal (Más Relevante) y Acciones */}
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-4">
+            
+            <div className="relative flex-1 w-full md:max-w-2xl group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search className={`w-5 h-5 transition-colors ${searchTerm ? 'text-blue-600' : 'text-slate-400 group-focus-within:text-blue-500'}`} />
+              </div>
+              <input 
+                type="text" 
+                placeholder="Buscar inscripto por nombre, apellido o DNI..." 
+                className={`w-full pl-12 pr-10 py-3 border-2 rounded-xl text-base outline-none transition-all shadow-sm placeholder:text-slate-400
+                  ${searchTerm 
+                    ? 'bg-blue-50 border-blue-400 text-blue-900 focus:ring-4 focus:ring-blue-500/20' 
+                    : 'bg-slate-50 border-slate-200 hover:border-slate-300 focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20'
+                  }`} 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+              />
+              {searchTerm && (
+                <button 
+                  onClick={() => setSearchTerm('')}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-red-500 transition-colors"
+                  title="Borrar búsqueda"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
+
+            {hasActiveFilters && (
+              <button 
+                onClick={handleClearFilters}
+                className="flex items-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl text-sm font-bold transition-all shadow-sm whitespace-nowrap"
+                title="Restaurar todos los filtros y búsqueda"
+              >
+                <Trash2 className="w-4 h-4" /> Limpiar Todo
+              </button>
+            )}
+            
+          </div>
+
+          {/* Fila 2: Selectores Secundarios */}
+          <div className="flex flex-col md:flex-row gap-3 items-center flex-wrap pt-3 border-t border-slate-100">
+            <div className="flex items-center gap-2 text-slate-500 shrink-0 mr-2">
+              <Filter className="w-4 h-4" />
+              <span className="font-bold text-sm uppercase tracking-wider">Filtros:</span>
+            </div>
+            
+            <select value={filterTipoOferta} onChange={(e) => setFilterTipoOferta(e.target.value)} className={`px-3 py-2 border rounded-lg text-sm outline-none transition-colors cursor-pointer ${filterTipoOferta !== 'Todos' ? 'bg-purple-50 border-purple-300 text-purple-800 font-medium' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+              <option value="Todos">Oferta: Todas</option><option value="Capacitación Laboral">Cap. Laboral</option><option value="Curso">Curso</option><option value="Trayecto">Trayecto</option>
+            </select>
+            
+            <select value={filterTurno} onChange={(e) => setFilterTurno(e.target.value)} className={`px-3 py-2 border rounded-lg text-sm outline-none transition-colors cursor-pointer ${filterTurno !== 'Todos' ? 'bg-amber-50 border-amber-300 text-amber-800 font-medium' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+              <option value="Todos">Turno: Todos</option><option value="TM">Mañana</option><option value="TT">Tarde</option><option value="TN">Noche</option>
+            </select>
+            
+            <select value={filterEstado} onChange={(e) => setFilterEstado(e.target.value)} className={`px-3 py-2 border rounded-lg text-sm outline-none transition-colors cursor-pointer ${filterEstado !== 'Todos' ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-medium' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+              <option value="Todos">Estado: Todos</option>
+              {uniqueEstados.map(est => <option key={est} value={est}>{est}</option>)}
+            </select>
+            
+            <select value={filterActividad} onChange={(e) => setFilterActividad(e.target.value)} className={`px-3 py-2 border rounded-lg text-sm outline-none transition-colors cursor-pointer max-w-[150px] md:max-w-[200px] truncate ${filterActividad !== 'Todas' ? 'bg-indigo-50 border-indigo-300 text-indigo-800 font-medium' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+              <option value="Todas">Actividad: Todas</option>
+              {uniqueActivities.map(act => <option key={act} value={act}>{act}</option>)}
+            </select>
+
+            <select value={filterDocente} onChange={(e) => setFilterDocente(e.target.value)} className={`px-3 py-2 border rounded-lg text-sm outline-none transition-colors cursor-pointer max-w-[150px] md:max-w-[200px] truncate ${filterDocente !== 'Todos' ? 'bg-cyan-50 border-cyan-300 text-cyan-800 font-medium' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+              <option value="Todos">Docente: Todos</option>
+              {uniqueDocentes.map(doc => <option key={doc} value={doc}>{doc}</option>)}
+              <option value="Sin Asignar">Sin Asignar</option>
+            </select>
+
+            <select value={filterPropuesta} onChange={(e) => setFilterPropuesta(e.target.value)} className={`px-3 py-2 border rounded-lg text-sm outline-none transition-colors cursor-pointer max-w-[150px] md:max-w-[200px] truncate ${filterPropuesta !== 'Todas' ? 'bg-fuchsia-50 border-fuchsia-300 text-fuchsia-800 font-medium' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+              <option value="Todas">Propuesta: Todas</option>
+              {uniquePropuestas.map(prop => <option key={prop} value={prop}>{prop}</option>)}
+              <option value="Sin Propuesta">Sin Propuesta</option>
+            </select>
+            
+          </div>
+        </Card>
+        {/* ========================================================= */}
+
+
         {/* Gráficos de Torta */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="p-4 flex flex-col items-center">
@@ -887,57 +975,6 @@ export default function DashboardInscripciones() {
           </Card>
         </div>
 
-        {/* Filtros */}
-        <Card className="p-4 mb-6 sticky top-0 z-20 shadow-md">
-          <div className="flex flex-col md:flex-row gap-3 items-center flex-wrap">
-            <div className="flex items-center gap-2 text-slate-600"><Filter className="w-4 h-4" /><span className="font-semibold text-sm">Filtros:</span></div>
-            
-            <select value={filterTipoOferta} onChange={(e) => setFilterTipoOferta(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterTipoOferta !== 'Todos' ? 'bg-purple-50 border-purple-300 text-purple-800' : 'bg-white border-slate-200'}`}>
-              <option value="Todos">Oferta: Todas</option><option value="Capacitación Laboral">Cap. Laboral</option><option value="Curso">Curso</option><option value="Trayecto">Trayecto</option>
-            </select>
-            
-            <select value={filterTurno} onChange={(e) => setFilterTurno(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterTurno !== 'Todos' ? 'bg-amber-50 border-amber-300 text-amber-800' : 'bg-white border-slate-200'}`}>
-              <option value="Todos">Turno: Todos</option><option value="TM">Mañana</option><option value="TT">Tarde</option><option value="TN">Noche</option>
-            </select>
-            
-            <select value={filterEstado} onChange={(e) => setFilterEstado(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer ${filterEstado !== 'Todos' ? 'bg-emerald-50 border-emerald-300 text-emerald-800' : 'bg-white border-slate-200'}`}>
-              <option value="Todos">Estado: Todos</option>
-              {uniqueEstados.map(est => <option key={est} value={est}>{est}</option>)}
-            </select>
-            
-            <select value={filterActividad} onChange={(e) => setFilterActividad(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer max-w-[150px] truncate ${filterActividad !== 'Todas' ? 'bg-indigo-50 border-indigo-300 text-indigo-800' : 'bg-white border-slate-200'}`}>
-              <option value="Todas">Actividad: Todas</option>
-              {uniqueActivities.map(act => <option key={act} value={act}>{act}</option>)}
-            </select>
-
-            <select value={filterDocente} onChange={(e) => setFilterDocente(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer max-w-[150px] truncate ${filterDocente !== 'Todos' ? 'bg-cyan-50 border-cyan-300 text-cyan-800' : 'bg-white border-slate-200'}`}>
-              <option value="Todos">Docente: Todos</option>
-              {uniqueDocentes.map(doc => <option key={doc} value={doc}>{doc}</option>)}
-              <option value="Sin Asignar">Sin Asignar</option>
-            </select>
-
-            <select value={filterPropuesta} onChange={(e) => setFilterPropuesta(e.target.value)} className={`px-3 py-2 border rounded-md text-sm outline-none transition-colors cursor-pointer max-w-[150px] truncate ${filterPropuesta !== 'Todas' ? 'bg-fuchsia-50 border-fuchsia-300 text-fuchsia-800' : 'bg-white border-slate-200'}`}>
-              <option value="Todas">Propuesta: Todas</option>
-              {uniquePropuestas.map(prop => <option key={prop} value={prop}>{prop}</option>)}
-              <option value="Sin Propuesta">Sin Propuesta</option>
-            </select>
-            
-            <div className="relative flex-1 min-w-[150px]">
-              <Search className={`absolute left-3 top-2.5 w-4 h-4 transition-colors ${searchTerm ? 'text-blue-600' : 'text-slate-400'}`} />
-              <input type="text" placeholder="Buscar nombre / DNI..." className={`w-full pl-10 pr-4 py-2 border rounded-md text-sm outline-none transition-colors ${searchTerm ? 'bg-blue-50 border-blue-300 text-blue-900' : 'bg-white border-slate-200'}`} value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
-            </div>
-
-            {hasActiveFilters && (
-              <button 
-                onClick={handleClearFilters}
-                className="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-md text-sm font-semibold transition-colors"
-                title="Restaurar todos los filtros"
-              >
-                <X className="w-4 h-4" /> Limpiar
-              </button>
-            )}
-          </div>
-        </Card>
 
         {/* Tablas de Ranking (2 Columnas) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-4">
@@ -1242,8 +1279,7 @@ export default function DashboardInscripciones() {
         </div>
       </Card>
       
-      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.15 - Indicadores</div>
+      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.16 - Buscador Mejorado</div>
     </div>
   );
-
 }
