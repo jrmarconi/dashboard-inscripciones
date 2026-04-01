@@ -25,6 +25,10 @@ ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_EEL_MC_1)Circuitos Eléctricos y Med
 ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_EEL_MC_3)Representación Gráfica;CFP N° 1 - Río Cuarto - 1993 - 08-TM;Presencial;Electricista en Inmuebles
 ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_EEL_ME_1)Montaje de Canalizaciones y Tableros Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 08-TM;Presencial;Montador/a electricista domiciliario
 ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_EEL_ME_2)Montaje de Líneas y Circuitos Eléctricos de Baja Tensión;CFP N° 1 - Río Cuarto - 1993 - 08-TM;Presencial;Montador/a electricista domiciliario
+ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;((TR_EEL_MC_1)Circuitos Eléctricos y Mediciones;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial;Montador/a electricista domiciliario
+ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;((TR_EEL_MC_3)Representación Gráfica;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial;Electricista en Inmuebles
+ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;((TR_EEL_ME_1)Montaje de Canalizaciones y Tableros Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial;Montador/a electricista domiciliario
+ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;((TR_EEL_ME_2)Montaje de Líneas y Circuitos Eléctricos de Baja Tensión;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial;Montador/a electricista domiciliario
 ALVES DA SILVA;JOHANNA;31407295;(TR_40_ME_1)Peinado;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Peluquero/a
 ALVES DA SILVA;JOHANNA;31407295;(TR_40_ME_2)Corte;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Peluquero/a
 ALVES DA SILVA;JOHANNA;31407295;(TR_EST_MC_1)Piel y Anexos Cutáneos;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Peluquero/a
