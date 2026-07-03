@@ -18,123 +18,130 @@ const DATA_SOURCE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-4w1L
 // BASE DE DOCENTES PREDEFINIDA
 // ==============================================================================
 const DEFAULT_DOCENTES_CSV = `ApellidoDocente;Nombres;dni;Actividad;Comisión;Modalidad;Propuesta
-ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_16_ME_1)Montaje de Líneas y Circuitos Eléctricos de Muy Baja Tensión;CFP N° 1 - Río Cuarto - 1993 - 02-TM;Presencial;Electricista en Inmuebles
-ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_16_ME_2)Instalaciones Eléctricas en Inmuebles;CFP N° 1 - Río Cuarto - 1993 - 02-TM;Presencial;Electricista en Inmuebles
-ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_16_ME_3)Proyecto de Instalaciones Eléctricas;CFP N° 1 - Río Cuarto - 1993 - 02-TM;Presencial;Electricista en Inmuebles
-ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_EEL_MC_1)Circuitos Eléctricos y Mediciones;CFP N° 1 - Río Cuarto - 1993 - 08-TM;Presencial;Montador/a electricista domiciliario
-ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_EEL_MC_3)Representación Gráfica;CFP N° 1 - Río Cuarto - 1993 - 08-TM;Presencial;Electricista en Inmuebles
-ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_EEL_ME_1)Montaje de Canalizaciones y Tableros Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 08-TM;Presencial;Montador/a electricista domiciliario
-ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;(TR_EEL_ME_2)Montaje de Líneas y Circuitos Eléctricos de Baja Tensión;CFP N° 1 - Río Cuarto - 1993 - 08-TM;Presencial;Montador/a electricista domiciliario
-ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;((TR_EEL_MC_1)Circuitos Eléctricos y Mediciones;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial;Montador/a electricista domiciliario
-ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;((TR_EEL_MC_3)Representación Gráfica;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial;Electricista en Inmuebles
-ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;((TR_EEL_ME_1)Montaje de Canalizaciones y Tableros Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial;Montador/a electricista domiciliario
-ALVAREZ FERNANDEZ;RICARDO JOSE;17708098;((TR_EEL_ME_2)Montaje de Líneas y Circuitos Eléctricos de Baja Tensión;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial;Montador/a electricista domiciliario
-ALVES DA SILVA;JOHANNA;31407295;(TR_40_ME_1)Peinado;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Peluquero/a
-ALVES DA SILVA;JOHANNA;31407295;(TR_40_ME_2)Corte;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Peluquero/a
-ALVES DA SILVA;JOHANNA;31407295;(TR_EST_MC_1)Piel y Anexos Cutáneos;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Peluquero/a
-BRAMUGLIA;JAVIER LEONARDO;21155317;(CT_0908)MANTENIMIENTO Y REPARACIÓN DE AIRE ACONDICIONADO DEL AUTOMOTOR;CFP N° 1 - Río Cuarto - 1993 - 02-TN;Presencial;MANTENIMIENTO Y REPARACIÓN DE AIRE ACOND DEL AUTO
-BRAMUGLIA;JAVIER LEONARDO;21155317;(CT_0939)MECÁNICA LIGERA DEL AUTOMOTOR;CFP N° 1 - Río Cuarto - 1993 - 03-TN;Presencial;MECÁNICA LIGERA DEL AUTOMOTOR
-CAMPODONICO;CARLOS ESTEBAN;32531805;(TR_16_ME_1)Montaje de Líneas y Circuitos Eléctricos de Muy Baja Tensión;CFP N° 1 - Río Cuarto - 1993 - 04-TT;Presencial;Electricista en Inmuebles
-CAMPODONICO;CARLOS ESTEBAN;32531805;(TR_16_ME_2)Instalaciones Eléctricas en Inmuebles;CFP N° 1 - Río Cuarto - 1993 - 04-TT;Presencial;Electricista en Inmuebles
-CAMPODONICO;CARLOS ESTEBAN;32531805;(TR_16_ME_3)Proyecto de Instalaciones Eléctricas;CFP N° 1 - Río Cuarto - 1993 - 04-TT;Presencial;Electricista en Inmuebles
-CASTRO;LUCAS EZEQUIEL;36807489;(TR_INF_MC_2)Organización del computador;CFP N° 1 - Río Cuarto - 1993 - 01-TN;Presencial;Instalador y soporte de sistemas informáticos
-CELASCO;JUAN CARLOS;24817160;(TR_40_ME_1)Peinado;CFP N° 1 - Río Cuarto - 1993 - 02-TT;Presencial;Peluquero/a
-CELASCO;JUAN CARLOS;24817160;(TR_40_ME_1)Peinado;CFP N° 1 - Río Cuarto - 1993 - 03-TN;Presencial;Peluquero/a
-CELASCO;JUAN CARLOS;24817160;(TR_40_ME_2)Corte;CFP N° 1 - Río Cuarto - 1993 - 02-TT;Presencial;Peluquero/a
-CELASCO;JUAN CARLOS;24817160;(TR_40_ME_2)Corte;CFP N° 1 - Río Cuarto - 1993 - 03-TN;Presencial;Peluquero/a
-CELASCO;JUAN CARLOS;24817160;(TR_EST_MC_1)Piel y Anexos Cutáneos;CFP N° 1 - Río Cuarto - 1993 - 02-TT;Presencial;Peluquero/a
-CELASCO;JUAN CARLOS;24817160;(TR_EST_MC_1)Piel y Anexos Cutáneos;CFP N° 1 - Río Cuarto - 1993 - 03-TN;Presencial;Peluquero/a
-CONTERNO;NESTOR EDUARDO;23815939;(CT_0244) CARPINTERO DE BANCO;CFP N° 1 - Río Cuarto - 1993 - 01-TT;Presencial;Carpintero de Banco
-CONTERNO;NESTOR EDUARDO;23815939;(CT_0244) CARPINTERO DE BANCO;CFP N° 1 - Río Cuarto - 1993 - 02-TN;Presencial;Carpintero de Banco
-CONTERNO;NESTOR EDUARDO;23815939;(CL_1699)Carpintero/a básico de muebles de melamina;CFP N° 1 - Río Cuarto - 1993 - 01-TT;Presencial;Carpintero/a Básico de Muebles de Melamina
-CONTERNO;NESTOR EDUARDO;23815939;(CL_1699)Carpintero/a básico de muebles de melamina;CFP N° 1 - Río Cuarto - 1993 - 02-TN;Presencial;Carpintero/a Básico de Muebles de Melamina
-COSTA;CINTIA LORENA;24930070;(TR_EST_MC_3)Relaciones laborales y orientación profesional;CFP N° 1 - Río Cuarto - 1993 - 02-TT-Presencial/Híbrida;Presencial/Híbrida/Presencial;Maquillador/a profesional
-COSTA;CINTIA LORENA;24930070;(TR_EST_MC_3)Relaciones laborales y orientación profesional;CFP N° 1 - Río Cuarto - 1993 - 02-TT-Presencial/Híbrida;Presencial/Híbrida/Presencial;Peluquero/a
-COSTA;CINTIA LORENA;24930070;(TR_MYA_MC_3)Gestión y/o atención clientes externos;CFP N° 1 - Río Cuarto - 1993 - 06-TT;Presencial/Híbrida;Mecánico/a de Motos
-COSTA;CINTIA LORENA;24930070;(TR_MYA_MC_4)Gestión de servicio;CFP N° 1 - Río Cuarto - 1993 - 04-TM;Presencial/Híbrida;Mec. Sistemas de encendido y alimentación (2026)
-COSTA;CINTIA LORENA;24930070;(TR_MYA_MC_4)Gestión de servicio;CFP N° 1 - Río Cuarto - 1993 - 12-TT;Presencial/Híbrida;Mecánico/a de Motos
-COSTA;CINTIA LORENA;24930070;(TR_MYA_MC_5)Relaciones Laborales y Orientación profesional;CFP N° 1 - Río Cuarto - 1993 - 01-TM-Presencial/Híbrida;Presencial/Híbrida;Mecánico/a de Bicicletas
-COSTA;CINTIA LORENA;24930070;(TR_MYA_MC_5)Relaciones Laborales y Orientación profesional;CFP N° 1 - Río Cuarto - 1993 - 01-TM-Presencial/Híbrida;Presencial/Híbrida;Mecánico/a de Motos
-COSTA;CINTIA LORENA;24930070;(TR_MYA_MC_7)Gestión de servicio y atención al cliente;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial/Híbrida;Mecánico/a de Bicicletas
-COSTA;SOFIA;37370272;(TR_39_ME_1)Maquillaje Social;CFP N° 1 - Río Cuarto - 1993 - 04-TT;Presencial;Maquillador/a profesional
-COSTA;SOFIA;37370272;(TR_EST_MC_1)Piel y Anexos Cutáneos;CFP N° 1 - Río Cuarto - 1993 - 04-TT;Presencial;Maquillador/a profesional
-COSTA;SOFIA;37370272;(TR_EST_MC_2)Gestión del proceso de trabajo en estética profesional;CFP N° 1 - Río Cuarto - 1993 - 04-TT;Presencial/Híbrida;Maquillador/a profesional
-DE CARO FERREIRA;Cristian Nicolas;39468676;(CL_1436)Operador de Herramientas de Marketing Digital;CFP N° 1 - Río Cuarto - 1993 - 02-TN;Presencial;Operador/a de Herramientas de Marketing Digital
-DE CARO FERREIRA;Cristian Nicolas;39468676;(CL_1640)Operador/a en Gestión y Procesamiento de Datos;CFP N° 1 - Río Cuarto - 1993 - 02-TN;Presencial;Operador/a en Gestión y Procesamiento de Datos
-DE CARO FERREIRA;Cristian Nicolas;39468676;(TR_INF_MC_3)Tecnología de redes;CFP N° 1 - Río Cuarto - 1993 - 01-TN;Presencial;Instalador y soporte de sistemas informáticos
-ECHAIDE;OMAR EDUARDO;24335948;(TR_EEL_MC_1)Circuitos Eléctricos y Mediciones;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Montador/a electricista domiciliario
-ECHAIDE;OMAR EDUARDO;24335948;(TR_EEL_MC_3)Representación Gráfica;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Electricista en Inmuebles
-ECHAIDE;OMAR EDUARDO;24335948;(TR_EEL_ME_1)Montaje de Canalizaciones y Tableros Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Montador/a electricista domiciliario
-ECHAIDE;OMAR EDUARDO;24335948;(TR_EEL_ME_2)Montaje de Líneas y Circuitos Eléctricos de Baja Tensión;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Montador/a electricista domiciliario
-FEDERICO;JUAN MARTIN;36930525;(TR_22_ME_2)Base de Datos;CFP N° 1 - Río Cuarto - 1993 - 01 -TM;Presencial/Híbrida;Programador
-FEDERICO;JUAN MARTIN;36930525;(TR_INF_MC_4)Técnicas de Programación;CFP N° 1 - Río Cuarto - 1993 - 01 -TM;Presencial/Híbrida;Programador
-FERNANDEZ;EMERIO MARTIN;18029824;(TR_11_ME_1)Función, Estructura y Sistema de Transmisión;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Mecánico/a de Bicicletas
-FERNANDEZ;EMERIO MARTIN;18029824;(TR_11_ME_1)Función, Estructura y Sistema de Transmisión;CFP N° 1 - Río Cuarto - 1993 - 02-TT;Presencial;Mecánico/a de Bicicletas
-FERNANDEZ;EMERIO MARTIN;18029824;(TR_11_ME_1)Función, Estructura y Sistema de Transmisión;CFP N° 1 - Río Cuarto - 1993 - 03-TN;Presencial;Mecánico/a de Bicicletas
-FERNANDEZ;EMERIO MARTIN;18029824;(TR_11_ME_2)Sistemas de Dirección Suspensión y Frenos;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Mecánico/a de Bicicletas
-FERNANDEZ;EMERIO MARTIN;18029824;(TR_11_ME_2)Sistemas de Dirección Suspensión y Frenos;CFP N° 1 - Río Cuarto - 1993 - 02-TT;Presencial;Mecánico/a de Bicicletas
-FERNANDEZ;EMERIO MARTIN;18029824;(TR_11_ME_2)Sistemas de Dirección Suspensión y Frenos;CFP N° 1 - Río Cuarto - 1993 - 03-TN;Presencial;Mecánico/a de Bicicletas
-FERNANDEZ;EMERIO MARTIN;18029824;(TR_11_ME_3)Sistema de Desplazamiento;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;Mecánico/a de Bicicletas
-FERNANDEZ;EMERIO MARTIN;18029824;(TR_11_ME_3)Sistema de Desplazamiento;CFP N° 1 - Río Cuarto - 1993 - 02-TT;Presencial;Mecánico/a de Bicicletas
-FERNANDEZ;EMERIO MARTIN;18029824;(TR_11_ME_3)Sistema de Desplazamiento;CFP N° 1 - Río Cuarto - 1993 - 03-TN;Presencial;Mecánico/a de Bicicletas
-FERNANDEZ;EMERIO MARTIN;18029824;(TR_MYA_MC_7)Gestión de servicio y atención al cliente;CFP N° 1 - Río Cuarto - 1993 - 02-TT;Presencial/Híbrida;Mecánico/a de Bicicletas
-FERNANDEZ;EMERIO MARTIN;18029824;(TR_MYA_MC_7)Gestión de servicio y atención al cliente;CFP N° 1 - Río Cuarto - 1993 - 03-TN;Presencial/Híbrida;Mecánico/a de Bicicletas
-FERNANDEZ;VICTOR JAVIER;29636266;(TR_17_ME_1)Instalaciones eléctricas industriales;CFP N° 1 - Río Cuarto - 1993 - 07-TN;Presencial;Electricista Industrial
-FERNANDEZ;VICTOR JAVIER;29636266;(TR_EEL_MC_4)Tecnología de control;CFP N° 1 - Río Cuarto - 1993 - 07-TN;Presencial;Electricista Industrial
-FERNANDEZ;VICTOR JAVIER;29636266;(TR_EEL_ME_4)Instalación y mantenimiento de máquinas eléctricas;CFP N° 1 - Río Cuarto - 1993 - 07-TN;Presencial;Electricista Industrial
-GIADANES;RUBEN DANIEL;23508297;(TR_MYA_ME_1)Sistema motor de combustión interna;CFP N° 1 - Río Cuarto - 1993 - 04-TM;Presencial;Auxiliar mecánico de motores de combustión interna
-GUERETA;WALTER;17610424;(TR_07_ME_6)Sistema Motor y Transmisión;CFP N° 1 - Río Cuarto - 1993 - 06-TT;Presencial;Mecánico/a de Motos
-GUERETA;WALTER;17610424;(TR_MYA_MC_1)Mediciones y Diagnósticos Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 06-TT;Presencial;Mecánico/a de Motos
-GUERETA;WALTER;17610424;(TR_MYA_MC_2)Mediciones y Diagnósticos Mecánicos;CFP N° 1 - Río Cuarto - 1993 - 06-TT;Presencial;Mecánico/a de Motos
-IBARRA;CALISTO;24915373;(CT_0133)AUXILIAR CONTABLE;CFP N° 1 - Río Cuarto - 1993 - 01-TT;Presencial;AUXILIAR CONTABLE
-IBARRA;CALISTO;24915373;(CT_0133)AUXILIAR CONTABLE;CFP N° 1 - Río Cuarto - 1993 - 02-TN;Presencial;AUXILIAR CONTABLE
-IBARRA;CALISTO;24915373;(CT_0887)LIQUIDACIÓN DE SUELDOS Y JORNALES;CFP N° 1 - Río Cuarto - 1993 - 01-TN;Presencial;LIQUIDACIÓN DE SUELDOS Y JORNALES
-INFANTINO;MARCELO A;21484603;(TR_MYA_MC_4)Gestión de servicio;CFP N° 1 - Río Cuarto - 1993 - 05-TN;Presencial/Híbrida;Mec. Sistemas de encendido y alimentación (2026)
-INFANTINO;MARCELO A;21484603;(TR_MYA_ME_1)Sistema motor de combustión interna;CFP N° 1 - Río Cuarto - 1993 - 05-TN;Presencial;Auxiliar mecánico de motores de combustión interna
-JEREZ MEDINA;MARCELO;31358862;(CT_0939)MECÁNICA LIGERA DEL AUTOMOTOR;CFP N° 1 - Río Cuarto - 1993 - 02-TT;Presencial;MECÁNICA LIGERA DEL AUTOMOTOR
-JEREZ MEDINA;MARCELO;31358862;(TR_12_ME_2)Sistemas de Control;CFP N° 1 - Río Cuarto - 1993 - 08-TN;Presencial;Electricista de automotores
-JEREZ MEDINA;MARCELO;31358862;(TR_MYA_MC_1)Mediciones y Diagnósticos Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 08-TN;Presencial;Electricista de automotores
-JEREZ MEDINA;MARCELO;31358862;(TR_MYA_MC_3)Gestión y/o atención clientes externos;CFP N° 1 - Río Cuarto - 1993 - 08-TN;Presencial/Híbrida;Electricista de automotores
-LUTZ;FEDERICO ARIEL;27463794;(TR_16_ME_1)Montaje de Líneas y Circuitos Eléctricos de Muy Baja Tensión;CFP N° 1 - Río Cuarto - 1993 - 06-TN;Presencial;Electricista en Inmuebles
-LUTZ;FEDERICO ARIEL;27463794;(TR_16_ME_2)Instalaciones Eléctricas en Inmuebles;CFP N° 1 - Río Cuarto - 1993 - 06-TN;Presencial;Electricista en Inmuebles
-LUTZ;FEDERICO ARIEL;27463794;(TR_16_ME_3)Proyecto de Instalaciones Eléctricas;CFP N° 1 - Río Cuarto - 1993 - 06-TN;Presencial;Electricista en Inmuebles
-MENDIETA;HUGO ANIBAL;21558916;(TR_EEL_MC_1)Circuitos Eléctricos y Mediciones;CFP N° 1 - Río Cuarto - 1993 - 03-TT;Presencial;Montador/a electricista domiciliario
-MENDIETA;HUGO ANIBAL;21558916;(TR_EEL_MC_1)Circuitos Eléctricos y Mediciones;CFP N° 1 - Río Cuarto - 1993 - 05-TN;Presencial;Montador/a electricista domiciliario
-MENDIETA;HUGO ANIBAL;21558916;(TR_EEL_MC_3)Representación Gráfica;CFP N° 1 - Río Cuarto - 1993 - 05-TN;Presencial;Electricista en Inmuebles
-MENDIETA;HUGO ANIBAL;21558916;(TR_EEL_ME_1)Montaje de Canalizaciones y Tableros Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 03-TT;Presencial;Montador/a electricista domiciliario
-MENDIETA;HUGO ANIBAL;21558916;(TR_EEL_ME_1)Montaje de Canalizaciones y Tableros Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 05-TN;Presencial;Montador/a electricista domiciliario
-MENDIETA;HUGO ANIBAL;21558916;(TR_EEL_ME_2)Montaje de Líneas y Circuitos Eléctricos de Baja Tensión;CFP N° 1 - Río Cuarto - 1993 - 03-TT;Presencial;Montador/a electricista domiciliario
-MENDIETA;HUGO ANIBAL;21558916;(TR_EEL_ME_2)Montaje de Líneas y Circuitos Eléctricos de Baja Tensión;CFP N° 1 - Río Cuarto - 1993 - 05-TN;Presencial;Montador/a electricista domiciliario
-MORCILLO;GUSTAVO ERNESTO;18262416;(TR_EEL_MC_2)Relaciones Laborales y Orientación Profesional;CFP N° 1 - Río Cuarto - 1993 - 03-TT;Presencial/Híbrida;Montador/a electricista domiciliario
-MORCILLO;GUSTAVO ERNESTO;18262416;(TR_MYA_MC_3)Gestión y/o atención clientes externos;CFP N° 1 - Río Cuarto - 1993 - 07-TN;Presencial/Híbrida;Mecánico/a de Motos
-MORCILLO;GUSTAVO ERNESTO;18262416;(TR_MYA_MC_5)Relaciones Laborales y Orientación profesional;CFP N° 1 - Río Cuarto - 1993 - 04-TT-Presencial/Híbrida;Presencial/Híbrida;Auxiliar mecánico de motores de combustión interna
-MORCILLO;GUSTAVO ERNESTO;18262416;(TR_MYA_MC_5)Relaciones Laborales y Orientación profesional;CFP N° 1 - Río Cuarto - 1993 - 04-TT-Presencial/Híbrida;Presencial/Híbrida;Electricista de automotores
-MORCILLO;GUSTAVO ERNESTO;18262416;(TR_MYA_MC_5)Relaciones Laborales y Orientación profesional;CFP N° 1 - Río Cuarto - 1993 - 04-TT-Presencial/Híbrida;Presencial/Híbrida;Mecánico Sistemas de Suspensión y Dirección
-PALACIOS;MARCELO ALEJANDRO;20685716;(CT_0908)MANTENIMIENTO Y REPARACIÓN DE AIRE ACONDICIONADO DEL AUTOMOTOR;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;MANTENIMIENTO Y REPARACIÓN DE AIRE ACOND DEL AUTO
-PALACIOS;MARCELO ALEJANDRO;20685716;(CT_0939)MECÁNICA LIGERA DEL AUTOMOTOR;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;MECÁNICA LIGERA DEL AUTOMOTOR
-PERALTA;LEONEL IGNACIO;36729276;(CL_1640)Operador/a en Gestión y Procesamiento de Datos;CFP N° 1 - Río Cuarto - 1993 - 01-TT;Presencial;Operador/a en Gestión y Procesamiento de Datos
-PERALTA;LEONEL IGNACIO;36729276;(TR_EEL_MC_3)Representación Gráfica;CFP N° 1 - Río Cuarto - 1993 - 03-TT;Presencial;Electricista en Inmuebles
-PERALTA;MARIA SANDRA;23085797;(CT_0548)ESTÉTICA FACIAL;CFP N° 1 - Río Cuarto - 1993 - 01-TM;Presencial;ESTÉTICA FACIAL
-PERALTA;MARIA SANDRA;23085797;(CT_0548)ESTÉTICA FACIAL;CFP N° 1 - Río Cuarto - 1993 - 02-TM;Presencial;ESTÉTICA FACIAL
-PICCOLO;DIEGO SEBASTIAN;20568524;(TR_05_ME_7)Sistema de Alimentación y Encendido;CFP N° 1 - Río Cuarto - 1993 - 11-TN;Presencial;Mecánico/a de Sistemas de encendido y alimentación
-PICCOLO;DIEGO SEBASTIAN;20568524;(TR_MYA_MC_1)Mediciones y Diagnósticos Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 11-TN;Presencial;Mecánico/a de Sistemas de encendido y alimentación
-PICCOLO;DIEGO SEBASTIAN;20568524;(TR_MYA_MC_4)Gestión de servicio;CFP N° 1 - Río Cuarto - 1993 - 11-TN;Presencial/Híbrida;Mecánico/a de Sistemas de encendido y alimentación
-RIVERO;JULIAN MATIAS;41559623;(TR_MYA_MC_1)Mediciones y Diagnósticos Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial;Mecánico Sistemas de Suspensión y Dirección
-RIVERO;JULIAN MATIAS;41559623;(TR_MYA_MC_2)Mediciones y Diagnósticos Mecánicos;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial;Mecánico Sistemas de Suspensión y Dirección
-RIVERO;JULIAN MATIAS;41559623;(TR_MYA_MC_3)Gestión y/o atención clientes externos;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial/Híbrida;Mecánico Sistemas de Suspensión y Dirección
-RIVERO;JULIAN MATIAS;41559623;(TR_MYA_MC_6)Tren de tracción Delantero / Trasero;CFP N° 1 - Río Cuarto - 1993 - 09-TN;Presencial;Mecánico Sistemas de Suspensión y Dirección
-ROJAS MARCONI;JORGE ENRIQUE;18769313;(CL_1436)Operador de Herramientas de Marketing Digital;CFP N° 1 - Río Cuarto - 1993 - 01-TT;Presencial;Operador/a de Herramientas de Marketing Digital
-TRIPOLI;FERNANDO GUILLERMO;20427688;(TR_05_ME_7)Sistema de Alimentación y Encendido;CFP N° 1 - Río Cuarto - 1993 - 10-TM;Presencial;Mecánico/a de Sistemas de encendido y alimentación
-TRIPOLI;FERNANDO GUILLERMO;20427688;(TR_07_ME_6)Sistema Motor y Transmisión;CFP N° 1 - Río Cuarto - 1993 - 07-TN;Presencial;Mecánico/a de Motos
-TRIPOLI;FERNANDO GUILLERMO;20427688;(TR_07_ME_7)Sistema de Alimentación y Encendido;CFP N° 1 - Río Cuarto - 1993 - 12-TT;Presencial;Mecánico/a de Motos
-TRIPOLI;FERNANDO GUILLERMO;20427688;(TR_07_ME_9)Suspensión, Dirección y Chasis;CFP N° 1 - Río Cuarto - 1993 - 12-TT;Presencial;Mecánico/a de Motos
-TRIPOLI;FERNANDO GUILLERMO;20427688;(TR_MYA_MC_1)Mediciones y Diagnósticos Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 07-TN;Presencial;Mecánico/a de Motos
-TRIPOLI;FERNANDO GUILLERMO;20427688;(TR_MYA_MC_1)Mediciones y Diagnósticos Eléctricos;CFP N° 1 - Río Cuarto - 1993 - 10-TM;Presencial;Mecánico/a de Sistemas de encendido y alimentación
-TRIPOLI;FERNANDO GUILLERMO;20427688;(TR_MYA_MC_2)Mediciones y Diagnósticos Mecánicos;CFP N° 1 - Río Cuarto - 1993 - 07-TN;Presencial;Mecánico/a de Motos
-TRIPOLI;FERNANDO GUILLERMO;20427688;(TR_MYA_MC_4)Gestión de servicio;CFP N° 1 - Río Cuarto - 1993 - 10-TM;Presencial/Híbrida;Mecánico/a de Sistemas de encendido y alimentación
-ULIBARRI;KARINA;25475562;(CT_0543)ESPECIALISTA EN TRATAMIENTOS ESTÉTICO CORPORALES;CFP N° 1 - Río Cuarto - 1993 - 01-TN;Presencial;ESPECIALISTA EN TRATAMIENTOS ESTÉTICO CORPORALES
-ULIBARRI;KARINA;25475562;(CT_0547)ESTÉTICA CORPORAL;CFP N° 1 - Río Cuarto - 1993 - 01-TT;Presencial;ESTÉTICA CORPORAL
-ULIBARRI;KARINA;25475562;(CT_0547)ESTÉTICA CORPORAL;CFP N° 1 - Río Cuarto - 1993 - 02-TN;Presencial;ESTÉTICA CORPORAL
+GIADANES;Ruben Daniel;;Sistema Motor Combustión Interna (TR_MYA_ME_6);CFP N° 1 - Río Cuarto - 1993 - 16;Presencial;AUXILIAR MECANICO
+COSTA;Cintia Lorena;;Relaciones Laborales y Orientación profesional (TR_MYA_MC_5);CFP N° 1 - Río Cuarto - 1993 - 16 BIMODAL;Presencial/Híbrida;AUXILIAR MECANICO
+COSTA;Cintia Lorena;;Gestión del Servicio (TR_MYA_MC_4);CFP N° 1 - Río Cuarto - 1993 - 16;Presencial/Híbrida;AUXILIAR MECANICO
+TRIPOLI;Fernando Guillermo;;Mediciones y Diagnósticos Eléctricos-Electronico  (TR_MYA_MC_1);CFP N° 1 - Río Cuarto - 1993 - 04;Presencial;MECÁNICO DE SISTEMA DE ENCENDIDO Y ALIMENTACIÓN
+TRIPOLI;Fernando Guillermo;;Sistema de Inyección Nafta  (TR_07_ME_7);CFP N° 1 - Río Cuarto - 1993 - 04;Presencial;MECÁNICO DE SISTEMA DE ENCENDIDO Y ALIMENTACIÓN
+FERNANDEZ;Emerio Martín;;Función;CFP N° 1 - Río Cuarto - 1993 - 13;Presencial;MECÁNICO DE BICICLETAS
+FERNANDEZ;Emerio Martín;;Sistemas de Dirección Suspensión y Frenos (TR_11_ME_2);CFP N° 1 - Río Cuarto - 1993 - 13;Presencial;MECÁNICO DE BICICLETAS
+FERNANDEZ;Emerio Martín;;Sistema de Desplazamiento (TR_11_ME_3);CFP N° 1 - Río Cuarto - 1993 - 13;Presencial;MECÁNICO DE BICICLETAS
+;;;Gestión de servicio y atención al cliente (TR_MYA_MC_7);CFP N° 1 - Río Cuarto - 1993 - 13;Presencial/Híbrida;MECÁNICO DE BICICLETAS
+COSTA;Cintia Lorena;;Relaciones Laborales y Orientación profesional (TR_MYA_MC_5);CFP N° 1 - Río Cuarto - 1993 - 13  BIMODAL;Presencial/Híbrida;MECÁNICO DE BICICLETAS
+ALVES DA SILVA;Johanna;;Gestion del Proceso de Trabajo en Estetica Profesional (TR_EST_MC_1);CFP N° 1 - Río Cuarto - 1993 - 01;Presencial;PELUQUERO
+ALVES DA SILVA;Johanna;;Coloracion y Cambio de Estructura del Cabello  (TR_40_ME_1);CFP N° 1 - Río Cuarto - 1993 - 01;Presencial;PELUQUERO
+FEDERICO;Juan Martín;;Relaciones Laborales y Orientación profesional  (TR_INF_MC_4);CFP N° 1 - Río Cuarto - 1993 - 01 - BIMODAL;Presencial/Híbrida;PROGRAMADOR
+FEDERICO;Juan Martín;;Programacion Orientada a Objetos (TR_22_ME_2);CFP N° 1 - Río Cuarto - 1993 - 01 BIMODAL;Presencial/Híbrida;PROGRAMADOR
+ECHAIDE;Omar Eduardo;;Circuitos Eléctricos y Mediciones (TR_EEL_MC_1);CFP N° 1 - Río Cuarto - 1993 - 10;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+ECHAIDE;Omar Eduardo;;Montaje de Canalizaciones y Tableros Eléctricos (TR_EEL_ME_1);CFP N° 1 - Río Cuarto - 1993 - 10;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+ECHAIDE;Omar Eduardo;;Montaje de Líneas y Circuitos Eléctricos de Baja Tensión (TR_EEL_ME_2);CFP N° 1 - Río Cuarto - 1993 - 10;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+MORCILLO;Gustavo Ernesto;;Relaciones Laborales y Orientación Profesional (TR_EEL_MC_2);CFP N° 1 - Río Cuarto - 1993 - 11 - Presencial/Híbrida;Presencial/Híbrida;MONTADOR ELECTRICISTA DOMICILIARIO
+ECHAIDE;Omar Eduardo;;Representación Gráfica (TR_EEL_MC_3);CFP N° 1 - Río Cuarto - 1993 - 10;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+ALVAREZ FERNANDEZ;Ricardo José;;Montaje de Líneas y Circuitos Eléctricos de Muy Baja Tensión (TR_16_ME_1);CFP N° 1 - Río Cuarto - 1993 - 14;Presencial;ELECTRICISTA INMUEBLES
+ALVAREZ FERNANDEZ;Ricardo José;;Instalaciones Eléctricas en Inmueble (TR_16_ME_2);CFP N° 1 - Río Cuarto - 1993 - 14;Presencial;ELECTRICISTA INMUEBLES
+ALVAREZ FERNANDEZ;Ricardo José;;Proyecto de Instalaciones Eléctricas (TR_16_ME_3);CFP N° 1 - Río Cuarto - 1993 - 14;Presencial;ELECTRICISTA INMUEBLES
+PALACIOS;Marcelo Alejandro;;MANTENIMIENTO Y REPARACIÓN DE AIRE ACONDICIONADO DEL AUTOMOTOR (CT_0908);CFP N° 1 - Río Cuarto - 1993 - 03;Presencial;ELECTRICISTA INMUEBLES
+PALACIOS;Marcelo Alejandro;;MECÁNICA LIGERA DEL AUTOMOTOR (CT_0939);CFP N° 1 - Río Cuarto - 1993 - 03;Presencial;ELECTRICISTA INMUEBLES
+PERALTA;María Sandra;;ESTÉTICA FACIAL (CT_0548);CFP N° 1 - Río Cuarto - 1993 - 04;Presencial;ELECTRICISTA INMUEBLES
+PERALTA;María Sandra;;ESTÉTICA FACIAL (CT_0548);CFP N° 1 - Río Cuarto - 1993 - 03;Presencial;ELECTRICISTA INMUEBLES
+ALVES;DA SILVA JOHANNA;;Gestión del proceso de trabajo en estética profesional (TR_EST_MC_2);CFP N° 1 - Río Cuarto - 1993 - 01;Presencial;PELUQUERO
+ALVES;DA SILVA JOHANNA;;Coloración y cambio de estructura del cabello (TR_40_ME_3);CFP N° 1 - Río Cuarto - 1993 - 01;Presencial;PELUQUERO
+COSTA;CINTIA;;Relaciones laborales y orientación profesional (TR_EST_MC_3);CFP N° 1 - Río Cuarto - 1993 - 02 BIMODAL;Presencial;PELUQUERO
+FERNANDEZ;Emerio Martín;;Función;CFP N° 1 - Río Cuarto - 1993 - 14;Presencial;MECÁNICO DE BICICLETAS
+FERNANDEZ;Emerio Martín;;Sistemas de Dirección Suspensión y Frenos (TR_11_ME_2);CFP N° 1 - Río Cuarto - 1993 - 14;Presencial;MECÁNICO DE BICICLETAS
+FERNANDEZ;Emerio Martín;;Sistema de Desplazamiento (TR_11_ME_3);CFP N° 1 - Río Cuarto - 1993 - 14;Presencial;MECÁNICO DE BICICLETAS
+GUERETA;Walter;;Mediciones y Diagnósticos Mecánicos (TR_MYA_MC_2);CFP N° 1 - Río Cuarto - 1993 - 18;Presencial;MECÁNICO DE BICICLETAS
+GUERETA;Walter;;Mediciones y Diagnósticos Eléctricos (TR_MYA_MC_1);CFP N° 1 - Río Cuarto - 1993 - 18;Presencial;MECÁNICO DE BICICLETAS
+GUERETA;Walter;;Sistema Motor y Transmisión (TR_07_ME_6);CFP N° 1 - Río Cuarto - 1993 - 18;Presencial;MECÁNICO DE BICICLETAS
+COSTA;Cintia Lorena;;Gestión y/o atención clientes externos (TR_MYA_MC_3);CFP N° 1 - Río Cuarto - 1993 - 18 BIMODAL;Presencial/Híbrida;MECÁNICO DE BICICLETAS
+TRIPOLI;Fernando Guillermo;;Sistema de Inyección Electronica (TR_07_ME_7);CFP N° 1 - Río Cuarto - 1993 - 12;Presencial;MECÁNICO DE BICICLETAS
+TRIPOLI;Fernando Guillermo;;Frenos y Control de Tracción (TR_07_ME_9);CFP N° 1 - Río Cuarto - 1993 - 12;Presencial;MECÁNICO DE BICICLETAS
+CELASCO;Juan Carlos;;Gestion del Proceso de Trabajo en Estetica Profesional (TR_EST_MC_1);CFP N° 1 - Río Cuarto - 1993 - 02;Presencial;MECÁNICO DE BICICLETAS
+CELASCO;Juan Carlos;;Coloracion y Cambio de Estructura del Cabello  (TR_40_ME_1);CFP N° 1 - Río Cuarto - 1993 - 02;Presencial;MECÁNICO DE BICICLETAS
+CELASCO;Juan Carlos;;Tecnicas y Procesos en Color;CFP N° 1 - Río Cuarto - 1993 - 02;Presencial;MECÁNICO DE BICICLETAS
+COSTA;Sofia;;Piel y Anexos Cutáneos (TR_EST_MC_1);CFP N° 1 - Río Cuarto - 1993 - 05;Presencial;MECÁNICO DE BICICLETAS
+COSTA;Sofia;;Gestión del proceso de trabajo en estética profesional (TR_EST_MC_2);CFP N° 1 - Río Cuarto - 1993 - 05 BIMODAL;Presencial / Semi;MECÁNICO DE BICICLETAS
+COSTA;Sofia;;Maquillaje Social (TR_39_ME_1);CFP N° 1 - Río Cuarto - 1993 - 05;Presencial;MECÁNICO DE BICICLETAS
+COSTA;Cintia Lorena;;Relaciones laborales y orientación profesional (TR_EST_MC_3);CFP N° 1 - Río Cuarto - 1993 - 05 Presencial/Híbrida;Presencial/Híbrida;MECÁNICO DE BICICLETAS
+CAMPODONICO;Carlos Esteban;;Circuitos Eléctricos y Mediciones (TR_EEL_MC_1);CFP N° 1 - Río Cuarto - 1993 - 11;Presencial;MECÁNICO DE BICICLETAS
+CAMPODONICO;Carlos Esteban;;Montaje de Canalizaciones y Tableros Eléctricos (TR_EEL_ME_1);CFP N° 1 - Río Cuarto - 1993 - 11;Presencial;MECÁNICO DE BICICLETAS
+CAMPODONICO;Carlos Esteban;;Montaje de Líneas y Circuitos Eléctricos de Baja Tensión (TR_EEL_ME_2);CFP N° 1 - Río Cuarto - 1993 - 11;Presencial;MECÁNICO DE BICICLETAS
+MORCILLO;Gustavo Ernesto;;Relaciones Laborales y Orientación Profesional (TR_EEL_MC_2);CFP N° 1 - Río Cuarto - 1993 - 11 - Presencial/Híbrida;Presencial/Híbrida;MECÁNICO DE BICICLETAS
+PERALTA;Leonel Ignacio;;Representación Gráfica (TR_EEL_MC_3);CFP N° 1 - Río Cuarto - 1993 - 11;Presencial;MECÁNICO DE BICICLETAS
+FERNANDEZ;VICTOR JAVIER;;Montaje de Líneas y Circuitos Eléctricos de Muy Baja Tensión (TR_16_ME_1);CFP N° 1 - Río Cuarto - 1993 - 15;Presencial;MECÁNICO DE BICICLETAS
+FERNANDEZ;VICTOR JAVIER;;Instalaciones Eléctricas en Inmueble (TR_16_ME_2);CFP N° 1 - Río Cuarto - 1993 - 15;Presencial;MECÁNICO DE BICICLETAS
+FERNANDEZ;VICTOR JAVIER;;Proyecto de Instalaciones Eléctricas (TR_16_ME_3);CFP N° 1 - Río Cuarto - 1993 - 15;Presencial;MECÁNICO DE BICICLETAS
+IBARRA;Calisto;;LIQUIDACIÓN DE SUELDOS Y JORNALES (CT_0887);CFP N° 1 - Río Cuarto - 1993 - 02;Presencial;MECÁNICO DE BICICLETAS
+ULIBARRI;Karina Marcela;;ESPECIALISTA EN TRATAMIENTOS ESTÉTICO CORPORALES (CT_0543);CFP N° 1 - Río Cuarto - 1993 - 02;Presencial;MECÁNICO DE BICICLETAS
+JEREZ MEDINA;Marcelo Javier;;MECÁNICA LIGERA DEL AUTOMOTOR (CT_0939);CFP N° 1 - Río Cuarto - 1993 - 05;Presencial;MECÁNICO DE BICICLETAS
+CONTERNO;Nestor Eduardo;;CARPINTERO DE BANCO (CT_0244);CFP N° 1 - Río Cuarto - 1993 - 01;Presencial;MECÁNICO DE BICICLETAS
+ROJAS MARCONI;Jorge Enrique;;Operador de Herramientas de Marketing Digital (CL_1436);CFP N° 1 - Río Cuarto - 1993 - 03 - BIMODAL;Presencial / Semi;MECÁNICO DE BICICLETAS
+PERALTA;Leonel Ignacio;;Operador/a en Gestión y Procesamiento de Datos (CL_1640);CFP N° 1 - Río Cuarto - 1993 - 03;Presencial;MECÁNICO DE BICICLETAS
+CONTERNO;Nestor Eduardo;;Carpintero/a básico de muebles de melamina (CL_1699);CFP N° 1 - Río Cuarto - 1993 - 03;Presencial;MECÁNICO DE BICICLETAS
+TRIPOLI;FERNANDO;;Frenos y Control de Tracción (TR_07_ME_10);CFP N° 1 - Río Cuarto - 1993 - 05;Presencial / Semi;MECÁNICO DE BICICLETAS
+TRIPOLI;FERNANDO;;Sistema de Inyección Electrónica (TR_07_ME_8);CFP N° 1 - Río Cuarto - 1993 - 05;Presencial / Semi;MECÁNICO DE BICICLETAS
+CELASCO;Juan Carlos;;Técnicas y Procesos  en Color  (TR_41_ME_1);CFP N° 1 - Río Cuarto - 1993 - 02 BIMODAL;Presencial;MECÁNICO DE BICICLETAS
+JEREZ;MEDINA MARCELO;;Circuitos Cableados - Equipamientos (TR_MYA_MC_1);CFP N° 1 - Río Cuarto - 1993 - 08;Presencial;ELECTRICISTA DE AUTOMOTORES
+JEREZ;MEDINA MARCELO;;Sistema de Arranque y Carga (TR_12_ME_2);CFP N° 1 - Río Cuarto - 1993 - 08;Presencial;ELECTRICISTA DE AUTOMOTORES
+JEREZ;MEDINA MARCELO;;Gestión del Servicio (TR_MYA_MC_4);CFP N° 1 - Río Cuarto - 1993 - 08 Presencial/Híbrida;Presencial/Híbrida;ELECTRICISTA DE AUTOMOTORES
+RIVERO;Julian Matias;;Sistema Motor Combustión Interna (TR_MYA_ME_6);CFP N° 1 - Río Cuarto - 1993 - 17;Presencial;AUXILIAR MECANICO
+RIVERO;Julian Matias;;Gestión del Servicio (TR_MYA_MC_4);CFP N° 1 - Río Cuarto - 1993 - 05 Presencial/Híbrida;Presencial/Híbrida;AUXILIAR MECANICO
+PICCOLO;Diego Sebastian;;Mediciones y Diagnósticos Eléctricos-Electronico  (TR_MYA_MC_1);CFP N° 1 - Río Cuarto - 1993 - 11;Presencial;MECÁNICO DE SISTEMA DE ENCENDIDO Y ALIMENTACIÓN
+PICCOLO;Diego Sebastian;;Sistema de Inyección Nafta  (TR_07_ME_7);CFP N° 1 - Río Cuarto - 1993 - 11;Presencial;MECÁNICO DE SISTEMA DE ENCENDIDO Y ALIMENTACIÓN
+FERNANDEZ;EMERIO MARTIN;;Función;CFP N° 1 - Río Cuarto - 1993 - 15;Presencial;MECÁNICO DE BICICLETAS
+FERNANDEZ;EMERIO MARTIN;;Sistemas de Dirección Suspensión y Frenos (TR_11_ME_2);CFP N° 1 - Río Cuarto - 1993 - 15;Presencial;MECÁNICO DE BICICLETAS
+FERNANDEZ;EMERIO MARTIN;;Sistema de Desplazamiento (TR_11_ME_3);CFP N° 1 - Río Cuarto - 1993 - 15;Presencial;MECÁNICO DE BICICLETAS
+FERNANDEZ;EMERIO MARTIN;;Gestión de servicio y atención al cliente (TR_MYA_MC_7);CFP N° 1 - Río Cuarto - 1993 - 15 Presencial/Híbrida;Presencial/Híbrida;MECÁNICO DE BICICLETAS
+TRIPOLI;FERNANDO GUILLERMO;;Gestión de servicio (TR_MYA_MC_4);CFP N° 1 - Río Cuarto - 1993 - 07 Presencial/Híbrida;Presencial;MECÁNICO DE MOTOS
+TRIPOLI;FERNANDO GUILLERMO;;Sistema de Alimentación y Encendido (TR_MYA_MC_1);CFP N° 1 - Río Cuarto - 1993 - 07;Presencial;MECÁNICO DE MOTOS
+TRIPOLI;FERNANDO;;Suspensión Dirección y Chasis  (TR_07_ME_6);CFP N° 1 - Río Cuarto - 1993 - 07;Presencial / Semi;MECÁNICO DE MOTOS
+RIVERO;JULIAN MATIAS;;Mediciones y Diagnósticos Mecánicos (TR_MYA_MC_2);CFP N° 1 - Río Cuarto - 1993 - 09;Presencial;MECÁNICO
+RIVERO;JULIAN MATIAS;;Mediciones y Diagnósticos Eléctricos (TR_MYA_MC_1);CFP N° 1 - Río Cuarto - 1993 - 09;Presencial;MECÁNICO
+RIVERO;JULIAN MATIAS;;Tren de tracción Delantero / Trasero (TR_MYA_MC_6);CFP N° 1 - Río Cuarto - 1993 - 09 BIMODAL;Presencial/Híbrida;MECÁNICO
+RIVERO;JULIAN MATIAS;;Gestión y/o atención clientes externos (TR_MYA_MC_3);CFP N° 1 - Río Cuarto - 1993 - 09 Presencial/Híbrida;Presencial/Híbrida;MECÁNICO
+MORCILLO;Gustavo Ernesto;;Relaciones Laborales y Orientación profesional (TR_MYA_MC_5);CFP N° 1 - Río Cuarto - 1993 - 04 Presencial/Híbrida;Presencial/Híbrida;MECÁNICO
+CELASCO;Juan Carlos;;Gestion del Proceso de Trabajo en Estetica Profesional (TR_EST_MC_1);CFP N° 1 - Río Cuarto - 1993 - 03;Presencial;PELUQUERO
+CELASCO;Juan Carlos;;Coloracion y Cambio de Estructura del Cabello  (TR_40_ME_1);CFP N° 1 - Río Cuarto - 1993 - 03;Presencial;PELUQUERO
+MEDINA;Miguel Angel;;Relaciones Laborales y Orientación profesional (TR_INF_MC_2);CFP N° 1 - Río Cuarto - 1993 - 01;Presencial / Semi;Instalador y soporte de sistemas informáticos
+CASTRO;Lucas Ezequiel;;Mantenimiento e Instalación de Sistemas Informaticos (TR_INF_MC_3);CFP N° 1 - Río Cuarto - 1993 - 01;Presencial / Semi;Instalador y soporte de sistemas informáticos
+CAMPODONICO;Carlos Esteban;;Circuitos Eléctricos y Mediciones (TR_EEL_MC_1);CFP N° 1 - Río Cuarto - 1993 - 12;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+CAMPODONICO;Carlos Esteban;;Montaje de Canalizaciones y Tableros Eléctricos (TR_EEL_ME_1);CFP N° 1 - Río Cuarto - 1993 - 12;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+CAMPODONICO;Carlos Esteban;;Montaje de Líneas y Circuitos Eléctricos de Baja Tensión (TR_EEL_ME_2);CFP N° 1 - Río Cuarto - 1993 - 12;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+CAMPODONICO;Carlos Esteban;;Representación Gráfica (TR_EEL_MC_3);CFP N° 1 - Río Cuarto - 1993 - 12;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+ALVAREZ;FERNANDEZ RICARDO JOSE;;Circuitos Eléctricos y Mediciones (TR_EEL_MC_1);CFP N° 1 - Río Cuarto - 1993 - 13;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+ALVAREZ;FERNANDEZ RICARDO JOSE;;Montaje de Canalizaciones y Tableros Eléctricos (TR_EEL_ME_1);CFP N° 1 - Río Cuarto - 1993 - 13;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+ALVAREZ;FERNANDEZ RICARDO JOSE;;Montaje de Líneas y Circuitos Eléctricos de Baja Tensión (TR_EEL_ME_2);CFP N° 1 - Río Cuarto - 1993 - 13;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+ALVAREZ;FERNANDEZ RICARDO JOSE;;Representación Gráfica (TR_EEL_MC_3);CFP N° 1 - Río Cuarto - 1993 - 13;Presencial;MONTADOR ELECTRICISTA DOMICILIARIO
+LUTZ;FEDERICO ARIEL;;Montaje de Líneas y Circuitos Eléctricos de Muy Baja Tensión (TR_16_ME_1);CFP N° 1 - Río Cuarto - 1993 - 16;Presencial;ELECTRICISTA INMUEBLES
+LUTZ;FEDERICO ARIEL;;Instalaciones Eléctricas en Inmuebles (TR_16_ME_2);CFP N° 1 - Río Cuarto - 1993 - 16;Presencial;ELECTRICISTA INMUEBLES
+LUTZ;FEDERICO ARIEL;;Proyecto de Instalaciones Eléctricas (TR_16_ME_3);CFP N° 1 - Río Cuarto - 1993 - 16;Presencial;ELECTRICISTA INMUEBLES
+FERNANDEZ;VICTOR JAVIER;;Tecnología de control (TR_EEL_MC_4);CFP N° 1 - Río Cuarto - 1993 - 17;Presencial;ELECTRICISTA INDUSTRIAL
+FERNANDEZ;VICTOR JAVIER;;Instalación y mantenimiento de máquinas eléctricas (TR_EEL_ME_4);CFP N° 1 - Río Cuarto - 1993 - 17;Presencial;ELECTRICISTA INDUSTRIAL
+FERNANDEZ;VICTOR JAVIER;;Instalaciones eléctricas industriales (TR_17_ME_1);CFP N° 1 - Río Cuarto - 1993 - 17;Presencial;ELECTRICISTA INDUSTRIAL
+IBARRA;CALISTO;;AUXILIAR CONTABLE (CT_0133);CFP N° 1 - Río Cuarto - 1993 - 03;Presencial;ELECTRICISTA INDUSTRIAL
+IBARRA;CALISTO;;LIQUIDACIÓN DE SUELDOS Y JORNALES (CT_0887);CFP N° 1 - Río Cuarto - 1993 - 03;Presencial;ELECTRICISTA INDUSTRIAL
+ULIBARRI;KARINA MARCELA;;ESPECIALISTA EN TRATAMIENTOS ESTÉTICO CORPORALES (CT_0543);CFP N° 1 - Río Cuarto - 1993 - 03;Presencial;ELECTRICISTA INDUSTRIAL
+ULIBARRI;KARINA MARCELA;;ESTÉTICA CORPORAL (CT_0547);CFP N° 1 - Río Cuarto - 1993 - 03;Presencial;ELECTRICISTA INDUSTRIAL
+BRAMUGLIA;Javier Leonardo;;MANTENIMIENTO Y REPARACIÓN DE AIRE ACONDICIONADO DEL AUTOMOTOR (CT_0908);CFP N° 1 - Río Cuarto - 1993 - 04;Presencial;ELECTRICISTA INDUSTRIAL
+BRAMUGLIA;Javier Leonardo;;MECÁNICA LIGERA DEL AUTOMOTOR (CT_0939);CFP N° 1 - Río Cuarto - 1993 - 06;Presencial;ELECTRICISTA INDUSTRIAL
+MEDINA;Miguel Angel;;Operador de Herramientas de Marketing Digital (CL_1436);CFP N° 1 - Río Cuarto - 1993 - 04;Presencial;ELECTRICISTA INDUSTRIAL
+MEDINA;Miguel Angel;;Operador/a en Gestión y Procesamiento de Datos (CL_1640);CFP N° 1 - Río Cuarto - 1993 - 04;Presencial;ELECTRICISTA INDUSTRIAL
+CONTERNO;Nestor Eduardo;;Carpintero/a básico de muebles de melamina (CL_1699);CFP N° 1 - Río Cuarto - 1993 - 04;Presencial;ELECTRICISTA INDUSTRIAL
+AGUSTI;Juan;;COMPOSIÓN (TR_45_ME_1);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 01;Presencial;FOTOGRAFO
+AGUSTI;Juan;;RELACIONES LABORALES Y ORIENTACIÓN PROFESIONAL (TR_IYS_MC_3);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 01;Presencial;FOTOGRAFO
+VIGNALE;Leonardo;;CÁMARA Y PARAMETROS DE TOMA Y EXPOSICIÓN (TR_IYS_ME_1);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 01;Presencial;FOTOGRAFO
+VIGNALE;Leonardo;;PROCESAMIENTO DE IMAGEN FOTOGRÁFICA (TR_45_ME_4);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 01;Presencial;FOTOGRAFO
+ALVAREZ;Leonardo;;COMPOSIÓN (TR_45_ME_1);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 02;Presencial;FOTOGRAFO
+ALVAREZ;Leonardo;;RELACIONES LABORALES Y ORIENTACIÓN PROFESIONAL (TR_IYS_MC_3);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 02;Presencial;FOTOGRAFO
+MORALES;Franco;;CÁMARA Y PARAMETROS DE TOMA Y EXPOSICIÓN (TR_IYS_ME_1);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 02;Presencial;FOTOGRAFO
+MORALES;Franco;;PROCESAMIENTO DE IMAGEN FOTOGRÁFICA (TR_45_ME_4);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 02;Presencial;FOTOGRAFO
+SANTAITI;Cayetano;;REALIZACIÓN FOTOGRÁFICA (TR_45_ME_3);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 03;Presencial;FOTOGRAFO
+GENISE;Maria Eva;;ILIMINACIÓN FOTOGRÁFICA (TR_45_ME_2);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 03;Presencial;FOTOGRAFO
+SANTAITI;Cayetano;;REALIZACIÓN FOTOGRÁFICA (TR_45_ME_3);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 04;Presencial;FOTOGRAFO
+GENISE;Maria Eva;;ILIMINACIÓN FOTOGRÁFICA (TR_45_ME_2);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 04;Presencial;FOTOGRAFO
+PAZO;Luciana;;ELEMENTOS VISUALES (TR_IYS_MC_1);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 05;Presencial;FOTOGRAFO
+PAZO;Luciana;;COMPOSIÓN (TR_45_ME_1);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 05;Presencial;FOTOGRAFO
+MORAN;Pablo Andres;;CÁMARA Y PARAMETROS DE TOMA Y EXPOSICIÓN (TR_IYS_ME_1);CFP N° 1 - Av PEDRO DE MENDOZA-1777 - 05;Presencial;FOTOGRAFO
 `;
 
 // ==============================================================================
