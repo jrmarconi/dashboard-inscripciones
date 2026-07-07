@@ -13,7 +13,7 @@ import {
 // CONFIGURACIÓN DE ORIGEN DE DATOS AUTOMÁTICO (NUBE)
 // Deja esto vacío ("") si vas a usar el CSV predefinido de abajo.
 // ==============================================================================
-const DATA_SOURCE_URL = ""; 
+const DATA_SOURCE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-4w1Lcx6FefPFWYVxlU_pMxGx5j_r4xENfPmhuiL2Y6qLRggLixxcHFudlXl4BZlBrELxln97B7Hu/pub?gid=1856440278&single=true&output=csv"; 
 
 // ==============================================================================
 // 1. BASE DE MATRIZ UNIFICADA (Docentes, Propuestas y Módulos Iniciales)
