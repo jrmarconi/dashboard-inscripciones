@@ -754,7 +754,7 @@ export default function DashboardInscripciones() {
         <div>
           <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
             <Users className="w-8 h-8 text-blue-600 print:hidden" />
-            <span><span className="text-blue-600 print:text-black">CFP N°1 -</span> Tablero de Inscripciones</span>
+            <span><span className="text-blue-600 print:text-black">CFP N°1 -</span> Inscripciones 2° Cuatrimestre - 2026</span>
           </h1>
           <div className="text-slate-500 mt-2 print:hidden flex items-center gap-3 flex-wrap">
             <span>Análisis Demográfico y de Ofertas</span>
