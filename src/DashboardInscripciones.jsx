@@ -16,10 +16,10 @@ import {
 const DATA_SOURCE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-4w1Lcx6FefPFWYVxlU_pMxGx5j_r4xENfPmhuiL2Y6qLRggLixxcHFudlXl4BZlBrELxln97B7Hu/pub?gid=1856440278&single=true&output=csv"; 
 
 // ==============================================================================
-// 1. BASE DE MATRIZ UNIFICADA (Docentes, Propuestas y Módulos Iniciales)
+// 1. BASE DE MATRIZ UNIFICADA (Docentes, Propuestas, Módulos Iniciales y Familia Profesional)
 // ==============================================================================
-const DEFAULT_MATRIZ_CSV = `CÓDIGO;FAMILIA PROFESIONAL;PROPUESTA;TIPO OFERTA;MODULO INICIAL;ACTIVIDAD;INSTRUCTOR/A;FECHA INICIO;FECHA FINAL;Encuentros Presenciales;DIAS;HORARIO;INASISTENCIAS;TOTAL Hs/Reloj
-CFP N° 1 - Río Cuarto - 1993 - 02-TT;ESTÉTICA;ESPECIALISTA EN TRATAMIENTOS ESTÉTICOS CORPORALES ;CURSO;VERDADERO;ESPECIALISTA EN TRATAMIENTOS ESTÉTICOS CORPORALES ;ULIBARRI, Karina Marcela;25-08-26;01-12-26;27;MA, JU;15:00-18:35;5;96
+const getDefaultMatriz = () => `CÓDIGO;FAMILIA PROFESIONAL;PROPUESTA;TIPO OFERTA;MODULO INICIAL;ACTIVIDAD;INSTRUCTOR/A;FECHA INICIO;FECHA FINAL;Encuentros Presenciales;DIAS;HORARIO;INASISTENCIAS;TOTAL Hs/Reloj
+CFP N° 1 - Río Cuarto - 1993 - 02-TT;ESTÉTICA;ESPECIALISTA EN TRATAMIENTOS ESTÉTICO CORPORALES ;CURSO;VERDADERO;ESPECIALISTA EN TRATAMIENTOS ESTÉTICO CORPORALES ;ULIBARRI, Karina Marcela;25-08-26;01-12-26;27;MA, JU;15:00-18:35;5;96
 CFP N° 1 - Río Cuarto - 1993 - 02-TT;ADMINISTRACIÓN;LIQUIDACION DE SUELDOS Y JORNALES;CURSO;VERDADERO;LIQUIDACION DE SUELDOS Y JORNALES;IBARRA Calisto;24-08-26;02-12-26;40;LU, MI, VI;15:30-18:30;8;120
 CFP N° 1 - Río Cuarto - 1993 - 05-TT;MECÁNICA;MECANICA LIGERA DEL AUTOMOTOR;CURSO;VERDADERO;MECANICA LIGERA DEL AUTOMOTOR;JEREZ MEDINA,Javier Marcelo;25-08-26;27-11-26;27;MA, VI;15:30-18:30;6;80
 CFP N° 1 - Río Cuarto - 1993 - 03-TT;CARPINTERÍA;CARPINTERO/A BASICO DE MUEBLES DE MELAMINA;CAPACITACIÓN LABORAL;VERDADERO;CARPINTERO/A BASICO DE MUEBLES DE MELAMINA;CONTERNO Nestor Eduardo;01-09-26;05-11-26;20;MA, JU;15:30-18:30;4;60
@@ -29,7 +29,7 @@ CFP N° 1 - Río Cuarto - 1993 - 14-TT;MECÁNICA;MECÁNICO DE BICICLETAS;TRAYECT
 CFP N° 1 - Río Cuarto - 1993 - 14-TT;MECÁNICA;MECÁNICO DE BICICLETAS;TRAYECTO;FALSO;GESTIÓN DE SERVICIO Y ATENCIÓN AL CLIENTE;FERNANDEZ,  Emerio Martin;23-09-26;15-10-26;10;LU, MI, JU;15:30-18:30;2;30
 CFP N° 1 - Río Cuarto - 1993 - 14-TT;MECÁNICA;MECÁNICO DE BICICLETAS;TRAYECTO;FALSO;SISTEMAS DE DIRECCION SUSPENSION Y FRENOS;FERNANDEZ,  Emerio Martin;19-10-26;09-11-26;10;LU, MI, JU;15:30-18:30;2;30
 CFP N° 1 - Río Cuarto - 1993 - 14-TT;MECÁNICA;MECÁNICO DE BICICLETAS;TRAYECTO;FALSO;SISTEMA DE DESPLAZAMIENTO;FERNANDEZ,  Emerio Martin;11-11-26;10-12-26;12;LU, MI, JU;15:30-18:30;3;36
-CFP N° 1 - Río Cuarto - 1993 - 18-TT;MECÁNICA;MECÁNICO DE MOTOS 1;TRAYECTO;VERDADERO;MEDICIONES Y DIAGNOSTICO MECANICO;GUERETA, Walter;10-08-26;10-09-26;18;LU, MA, JU, VI;15:30-18:30;4;54
+CFP N° 1 - Río Cuarto - 1993 - 18-TT;MECÁNICA;MECÁNICO DE MOTOS 1;TRAYECTO;VERDADERO;MEDICIONES Y DIAGNOSTICOS MECANICOS;GUERETA, Walter;10-08-26;10-09-26;18;LU, MA, JU, VI;15:30-18:30;4;54
 CFP N° 1 - Río Cuarto - 1993 - 18-TT;MECÁNICA;MECÁNICO DE MOTOS 1;TRAYECTO;FALSO;MEDICIONES Y DIAGNOSTICO ELECTRICO;GUERETA, Walter;14-09-26;15-10-26;18;LU, MA, JU, VI;15:30-18:30;4;54
 CFP N° 1 - Río Cuarto - 1993 - 18-TT;MECÁNICA;MECÁNICO DE MOTOS 1;TRAYECTO;FALSO;GESTION Y/O ATENCION CLIENTES EXTERNOS;COSTA Cintia Lorena;02-09-26;21-10-26;6;MI;14:20-17:20;2;24
 CFP N° 1 - Río Cuarto - 1993 - 18-TT;MECÁNICA;MECÁNICO DE MOTOS 1;TRAYECTO;FALSO;SISTEMA MOTOR Y TRANSMISION;GUERETA, Walter;16-10-26;14-12-26;32;LU, MA, JU, VI;15:30-18:30;7;96
@@ -68,15 +68,15 @@ CFP N° 1 - Río Cuarto - 1993 - 02-TM;ENERGÍA;ELECTRICISTA INMUEBLES;TRAYECTO;
 CFP N° 1 - Río Cuarto - 1993 - 02-TM;ENERGÍA;ELECTRICISTA INMUEBLES;TRAYECTO;FALSO;PROYECTO DE INSTALACIONES ELECTRICAS (nuevo);ALVAREZ FERNANDEZ, Ricardo Jose;06-11-26;04-12-26;20;LU, MA, MI, JU, VI;08:30-11:45;4;60
 CFP N° 1 - Río Cuarto - 1993 - 01-TM;ESTÉTICA;PELUQUERO/A;TRAYECTO;VERDADERO;GESTION DEL PROCESO DE TRABAJO EN ESTETICA PROFESIONAL;ALVES DA SILVA, Johanna;11-08-26;25-08-26;7;MA, MI, VI;08:30-11:45;1;20
 CFP N° 1 - Río Cuarto - 1993 - 01-TM;ESTÉTICA;MECÁNICO DE MOTOS 3;TRAYECTO;FALSO;COLORACIÓN Y CAMBIO DE ESTRUCTURA DEL CABELLO;ALVES DA SILVA, Johanna;26-08-26;09-12-26;44;MA, MI, VI;08:30-11:45;9;130
-CFP N° 1 - Río Cuarto - 1993 - 01 -TM;INFORMÁTICA;PROGRAMADOR;TRAYECTO;VERDADERO;PROGRAMACION ORIENTADA A OBJETOS;FEDERICO, Juan Martin;25-08-25;19-11-26;50;LU, MA, MI, JU;08:30-11:45;10;150
+CFP N° 1 - Río Cuarto - 1993 - 01-TM;INFORMÁTICA;PROGRAMADOR;TRAYECTO;VERDADERO;PROGRAMACION ORIENTADA A OBJETOS;FEDERICO, Juan Martin;25-08-25;19-11-26;50;LU, MA, MI, JU;08:30-11:45;10;150
 CFP N° 1 - Río Cuarto - 1993 - 03-TN;ADMINISTRACIÓN;AUXILIAR CONTABLE ;CURSO;VERDADERO;AUXILIAR CONTABLE ;IBARRA Calisto;11-08-26;16-12-26;38;MA, MI;18:50-22:10;8;120
-CFP N° 1 - Río Cuarto - 1993 - 03-TN;ESTÉTICA;ESPECIALISTA EN TRATAMIENTOS ESTÉTICOS CORPORALES ;CURSO;VERDADERO;ESPECIALISTA EN TRATAMIENTOS ESTÉTICOS CORPORALES ;ULIBARRI, Karina Marcela;11-08-26;26-11-26;32;MA, JU;19:00-22:10;6;96
+CFP N° 1 - Río Cuarto - 1993 - 03-TN;ESTÉTICA;ESPECIALISTA EN TRATAMIENTOS ESTÉTICO CORPORALES ;CURSO;VERDADERO;ESPECIALISTA EN TRATAMIENTOS ESTÉTICO CORPORALES ;ULIBARRI, Karina Marcela;11-08-26;26-11-26;32;MA, JU;19:00-22:10;6;96
 CFP N° 1 - Río Cuarto - 1993 - 03-TN;ESTÉTICA;ESTETICA CORPORAL  ;CURSO;VERDADERO;ESTETICA CORPORAL  ;ULIBARRI, Karina Marcela;10-08-26;09-12-26;34;LU, MI;18:50-22:10;7;112
 CFP N° 1 - Río Cuarto - 1993 - 03-TN;ADMINISTRACIÓN;LIQUIDACION DE SUELDOS Y JORNALES;CURSO;VERDADERO;LIQUIDACION DE SUELDOS Y JORNALES;IBARRA Calisto;10-08-26;13-11-26;40;LU, JU, VI ;19:00-22:10;8;120
 CFP N° 1 - Río Cuarto - 1993 - 04-TN;MECÁNICA;MANTENIMIENTO Y REPARACIÓN DE AIRE ACONDICIONADO DEL AUTOMOTOR;CURSO;VERDADERO;MANTENIMIENTO Y REPARACIÓN DE AIRE ACONDICIONADO DEL AUTOMOTOR;BRAMUGLIA, Javier Leonardo;11-08-26;03-12-26;34;MA, JU;19:00-22:10;7;100
 CFP N° 1 - Río Cuarto - 1993 - 05-TN;MECÁNICA;MECANICA LIGERA DEL AUTOMOTOR;CURSO;VERDADERO;MECANICA LIGERA DEL AUTOMOTOR;BRAMUGLIA, Javier Leonardo;02-09-26;09-12-26;27;LU, MIE;19:00-22:10;7;80
 CFP N° 1 - Río Cuarto - 1993 - 04-TN;CARPINTERÍA;CARPINTERO/A BASICO DE MUEBLES DE MELAMINA;CAPACITACIÓN LABORAL;VERDADERO;CARPINTERO/A BASICO DE MUEBLES DE MELAMINA;CONTERNO Nestor Eduardo;01-09-26;05-11-26;20;MA, JU;19:00-22:10;4;60
-CFP N° 1 - Río Cuarto - 1993 - 04-TN;INFORMÁTICA;OPERADOR/A DE HERRAMIENTAS DE MARKETING DIGITAL;CAPACITACIÓN LABORAL;VERDADERO;OPERADOR/A DE HERRAMIENTAS DE MARKETING DIGITAL;MEDINA Miguel Angel ;11-08-26;27-11-26;32;MA, VI;19:00-22:10;7;96
+CFP N° 1 - Río Cuarto - 1993 - 04-TN;INFORMÁTICA;OPERADOR DE HERRAMIENTAS DE MARKETING DIGITAL;CAPACITACIÓN LABORAL;VERDADERO;OPERADOR DE HERRAMIENTAS DE MARKETING DIGITAL;MEDINA Miguel Angel ;11-08-26;27-11-26;32;MA, VI;19:00-22:10;7;96
 CFP N° 1 - Río Cuarto - 1993 - 04-TN;INFORMÁTICA;OPERADOR/A EN GESTION Y PROCESAMIENTO DE DATOS;CAPACITACIÓN LABORAL;VERDADERO;OPERADOR/A EN GESTION Y PROCESAMIENTO DE DATOS;MEDINA Miguel Angel ;12-08-26;09-12-26;32;LU, MI;19:00-22:10;7;96
 CFP N° 1 - Río Cuarto - 1993 - 15-TN;MECÁNICA;MECÁNICO DE BICICLETAS;TRAYECTO;VERDADERO;FUNCION ESTRUCTURA Y SISTEMA DE TRANSMISION;FERNANDEZ,  Emerio Martin;31-08-26;21-09-26;10;LU, MI, JU;19:00-22:10;2;30
 CFP N° 1 - Río Cuarto - 1993 - 15-TN;MECÁNICA;MECÁNICO DE BICICLETAS;TRAYECTO;FALSO;GESTIÓN DE SERVICIO Y ATENCIÓN AL CLIENTE;FERNANDEZ,  Emerio Martin;23-09-26;15-10-26;10;LU, MI, JU;19:00-22:10;2;30
@@ -108,14 +108,14 @@ CFP N° 1 - Río Cuarto - 1993 - 16-TN;ENERGÍA;ELECTRICISTA INDUSTRIAL;TRAYECTO
 CFP N° 1 - Río Cuarto - 1993 - 16-TN;ENERGÍA;ELECTRICISTA INDUSTRIAL;TRAYECTO;FALSO;INSTALACIONES ELECTRICAS INDUSTRIALES;FERNANDEZ Victor Javier;15-10-26;02-12-26;27;LU, MA, MI, JU;19:00-22:10;6;80
 CFP N° 1 - Río Cuarto - 1993 - 03-TN;ESTÉTICA;PELUQUERO/A;TRAYECTO;VERDADERO;GESTION DEL PROCESO DE TRABAJO EN ESTETICA PROFESIONAL;CELASCO Juan Carlos;11-08-26;25-08-26;7;MA, MI, VI;19:00-22:10;1;20
 CFP N° 1 - Río Cuarto - 1993 - 03-TN;ESTÉTICA;PELUQUERO/A;TRAYECTO;FALSO;COLORACIÓN Y CAMBIO DE ESTRUCTURA DEL CABELLO;CELASCO Juan Carlos;26-08-26;11-12-26;44;MA, MI, VI;19:00-22:10 ;9;130
-CFP N° 1-Av PEDRO DE MENDOZA-1777-01;;FOTOGRAFO/A;TRAYECTO;FALSO;COMPOSICIÓN;AGUSTI Juan;04/05/26;28/09/26;16;LU;19:00-22:10;3;48
-CFP N° 1-Av PEDRO DE MENDOZA-1777-01;;FOTOGRAFO/A;TRAYECTO;FALSO;CÁMARA Y PARAMETRO DE TOMA Y EXPOSICIÓN;VIGNALE Leonardo;17/03/26;24/09/26;43;MA, JU;19:00-22:10;9;128
-CFP N° 1-Av PEDRO DE MENDOZA-1777-01;;FOTOGRAFO/A;TRAYECTO;FALSO;PROCESAMIENTO DE IMAGEN FOTOGRÁFICA;VIGNALE Leonardo;29/09/26;19/11/26;16;MA, JU;19:00-22:10;4;48
-CFP N° 1-Av PEDRO DE MENDOZA-1777-02;;FOTOGRAFO/A;TRAYECTO;FALSO;COMPOSICIÓN;ALVAREZ Leonardo;20/05/26;23/09/26;16;MI;19:00-22:10;3;48
-CFP N° 1-Av PEDRO DE MENDOZA-1777-02;;FOTOGRAFO/A;TRAYECTO;FALSO;CÁMARA Y PARAMETRO DE TOMA Y EXPOSICIÓN;MORALES Franco;23/03/26;21/09/26;43;LU, MA;19:00-22:10;9;128
-CFP N° 1-Av PEDRO DE MENDOZA-1777-02;;FOTOGRAFO/A;TRAYECTO;FALSO;PROCESAMIENTO DE IMAGEN FOTOGRÁFICA;MORALES Franco;22/09/26;17/11/26;16;LU, MA;19:00-22:10;4;48
-CFP N° 1-Av PEDRO DE MENDOZA-1777-03;;FOTOGRAFO/A;TRAYECTO;FALSO;REALIZACIÓN FOTOGRÁFICA;SANTAITI Cayetano;26/03/26;05/11/26;55;JU, VI;19:00-21:35;9;128
-CFP N° 1-Av PEDRO DE MENDOZA-1777-03;;FOTOGRAFO/A;TRAYECTO;FALSO;ILIMINACIÓN FOTOGRÁFICA;GENISE Maria Eva;31/03/26;24/11/26;32;MA;19:00-22:10 ;7;96
+CFP N° 1-Av PEDRO DE MENDOZA-1777-01;;FOTOGRAFO/A;TRAYECTO;FALSO;COMPOSICIÓN;AGUSTI Juan;04-05-26;28-09-26;16;LU;19:00-22:10;3;48
+CFP N° 1-Av PEDRO DE MENDOZA-1777-01;;FOTOGRAFO/A;TRAYECTO;FALSO;CÁMARA Y PARAMETRO DE TOMA Y EXPOSICIÓN;VIGNALE Leonardo;17-03-26;24-09-26;43;MA, JU;19:00-22:10;9;128
+CFP N° 1-Av PEDRO DE MENDOZA-1777-01;;FOTOGRAFO/A;TRAYECTO;FALSO;PROCESAMIENTO DE IMAGEN FOTOGRÁFICA;VIGNALE Leonardo;29-09-26;19-11-26;16;MA, JU;19:00-22:10;4;48
+CFP N° 1-Av PEDRO DE MENDOZA-1777-02;;FOTOGRAFO/A;TRAYECTO;FALSO;COMPOSICIÓN;ALVAREZ Leonardo;20-05-26;23-09-26;16;MI;19:00-22:10;3;48
+CFP N° 1-Av PEDRO DE MENDOZA-1777-02;;FOTOGRAFO/A;TRAYECTO;FALSO;CÁMARA Y PARAMETRO DE TOMA Y EXPOSICIÓN;MORALES Franco;23-03-26;21-09-26;43;LU, MA;19:00-22:10;9;128
+CFP N° 1-Av PEDRO DE MENDOZA-1777-02;;FOTOGRAFO/A;TRAYECTO;FALSO;PROCESAMIENTO DE IMAGEN FOTOGRÁFICA;MORALES Franco;22-09-26;17-11-26;16;LU, MA;19:00-22:10;4;48
+CFP N° 1-Av PEDRO DE MENDOZA-1777-03;;FOTOGRAFO/A;TRAYECTO;FALSO;REALIZACIÓN FOTOGRÁFICA;SANTAITI Cayetano;26-03-26;05-11-26;55;JU, VI;19:00-21:35;9;128
+CFP N° 1-Av PEDRO DE MENDOZA-1777-03;;FOTOGRAFO/A;TRAYECTO;FALSO;ILIMINACIÓN FOTOGRÁFICA;GENISE Maria Eva;31-03-26;24-11-26;32;MA;19:00-22:10 ;7;96
 CFP N° 1-Av PEDRO DE MENDOZA-1777-04;;FOTOGRAFO/A;TRAYECTO;FALSO;REALIZACIÓN FOTOGRÁFICA;SANTAITI Cayetano;01-09-26;01-06-27;55;MA, MI;19:00-21:35;9;128
 CFP N° 1-Av PEDRO DE MENDOZA-1777-04;;FOTOGRAFO/A;TRAYECTO;FALSO;ILIMINACIÓN FOTOGRÁFICA;GENISE Maria Eva;24-08-26;28-06-27;32;LU;19:00-22:10 ;7;96
 CFP N° 1-Av PEDRO DE MENDOZA-1777-05;;FOTOGRAFO/A;TRAYECTO;FALSO;ELEMENTOS VISUALES;PAZO Luciana;10-08-26;05-10-26;8;MI;19:00-22:10;2;24
@@ -124,16 +124,17 @@ CFP N° 1-Av PEDRO DE MENDOZA-1777-05;;FOTOGRAFO/A;TRAYECTO;FALSO;CÁMARA Y PARA
 
 // ==============================================================================
 // 2. BASE DE INSCRIPCIONES PREDEFINIDA
-// Pega aquí tu CSV completo de alumnos inscriptos
 // ==============================================================================
-const DEFAULT_INSCRIPCIONES_CSV = `Alumno,Identificación,Mail,Teléfono,Comisión,Estado Insc.,Actividad
-"Aguirre Zanca, Karina Ana",DNI 24804039,karinaguirre75@gmail.com,1126549320,CFP N° 1 - Río Cuarto - 1993 - 01-TT,Pendiente,(CL_1436) Operador de Herramientas de Marketing Digital
-"ALARCON VILLAMAYOR, OLGA LILIOSA",DNI 95625371,lili90villamayor@gmail.com,1128732605,CFP N° 1 - Río Cuarto - 1993 - 02-TN,Pendiente,(CL_1436) Operador de Herramientas de Marketing Digital
-"ALVAREZ, MIRTA SUSANA",DNI 23454865,alvarezsusana549@gmail.com,01160370455,CFP N° 1 - Río Cuarto - 1993 - 02-TN,Aceptada,(CL_1436) Operador de Herramientas de Marketing Digital
-"Andriani, Camila AGUSTINA",DNI 47127952,camilalovers339@gmail.com,541159781620,CFP N° 1 - Río Cuarto - 1993 - 01-TT,Aceptada,(CL_1436) Operador de Herramientas de Marketing Digital
-"PIREZ, PABLO NAHUEL",DNI 47435248,nahuelpirez12@gmail.com,3584112233,CFP N° 1 - Río Cuarto - 1993 - 05-TN,Pendiente,(TR_MYA_ME_1) Sistema motor de combustión interna
-"RAMOS, AGOSTINA CELESTE",DNI 47738200,agostinacr28@gmail.com,3585998877,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Pendiente,(TR_MYA_ME_1) Sistema motor de combustión interna
-"REYNAGA VALE, FRANCISCO",DNI 94056832,juanrenvion@gmail.com,358987654,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Rechazada,(TR_MYA_ME_1) Sistema motor de combustión interna`;
+const getDefaultInscripciones = () => [
+"Alumno,Identificación,Mail,Teléfono,Comisión,Estado Insc.,Actividad",
+"\"Aguirre Zanca, Karina Ana\",DNI 24804039,karinaguirre75@gmail.com,1126549320,CFP N° 1 - Río Cuarto - 1993 - 01-TT,Pendiente,(CL_1436) Operador de Herramientas de Marketing Digital",
+"\"ALARCON VILLAMAYOR, OLGA LILIOSA\",DNI 95625371,lili90villamayor@gmail.com,1128732605,CFP N° 1 - Río Cuarto - 1993 - 02-TN,Pendiente,(CL_1436) Operador de Herramientas de Marketing Digital",
+"\"ALVAREZ, MIRTA SUSANA\",DNI 23454865,alvarezsusana549@gmail.com,01160370455,CFP N° 1 - Río Cuarto - 1993 - 02-TN,Aceptada,(CL_1436) Operador de Herramientas de Marketing Digital",
+"\"Andriani, Camila AGUSTINA\",DNI 47127952,camilalovers339@gmail.com,541159781620,CFP N° 1 - Río Cuarto - 1993 - 01-TT,Aceptada,(CL_1436) Operador de Herramientas de Marketing Digital",
+"\"PIREZ, PABLO NAHUEL\",DNI 47435248,nahuelpirez12@gmail.com,3584112233,CFP N° 1 - Río Cuarto - 1993 - 05-TN,Pendiente,(TR_MYA_ME_1) Sistema motor de combustión interna",
+"\"RAMOS, AGOSTINA CELESTE\",DNI 47738200,agostinacr28@gmail.com,3585998877,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Pendiente,(TR_MYA_ME_1) Sistema motor de combustión interna",
+"\"REYNAGA VALE, FRANCISCO\",DNI 94056832,juanrenvion@gmail.com,358987654,CFP N° 1 - Río Cuarto - 1993 - 04-TM,Rechazada,(TR_MYA_ME_1) Sistema motor de combustión interna"
+].join('\n');
 
 
 // --- Utilitarios para procesamiento de CSV ---
@@ -200,11 +201,6 @@ const extractComisionNumber = (com) => {
   return normalizeKey(com);
 };
 
-// Genera la llave de cruce
-const buildKey = (comision, actividad) => {
-  return `${extractComisionNumber(comision)}|${cleanActivityName(actividad)}`;
-};
-
 // Helper para unificar nombres de docentes: "ULIBARRI, Karina Marcela" => "Ulibarri Karina Marcela"
 const formatDocenteName = (str) => {
   if (!str) return '';
@@ -267,10 +263,12 @@ export default function DashboardInscripciones() {
   // Mapas Unificados desde MATRIZ
   const [docentesMap, setDocentesMap] = useState({}); 
   const [propuestasMap, setPropuestasMap] = useState({});
+  const [familiasMap, setFamiliasMap] = useState({});
   const [modulosInicialesSet, setModulosInicialesSet] = useState([]);
   
   // Filtros
   const [filterTurno, setFilterTurno] = useState('Todos');
+  const [filterFamilia, setFilterFamilia] = useState('Todas');
   const [filterActividad, setFilterActividad] = useState('Todas');
   const [filterEstado, setFilterEstado] = useState('Todos');
   const [filterTipoOferta, setFilterTipoOferta] = useState('Todos');
@@ -291,8 +289,8 @@ export default function DashboardInscripciones() {
 
   useEffect(() => {
     // 1. Cargar MATRIZ unificada
-    if (DEFAULT_MATRIZ_CSV.trim() !== '') {
-      processMatrizCSV(DEFAULT_MATRIZ_CSV, false);
+    if (getDefaultMatriz().trim() !== '') {
+      processMatrizCSV(getDefaultMatriz(), false);
     }
     
     // Cargar caché si existe
@@ -301,6 +299,9 @@ export default function DashboardInscripciones() {
     
     const storedPropuestas = localStorage.getItem('dashboard_propuestas_map');
     if (storedPropuestas) try { setPropuestasMap(prev => ({ ...prev, ...JSON.parse(storedPropuestas) })); } catch (e) {}
+
+    const storedFamilias = localStorage.getItem('dashboard_familias_map');
+    if (storedFamilias) try { setFamiliasMap(prev => ({ ...prev, ...JSON.parse(storedFamilias) })); } catch (e) {}
     
     const storedIniciales = localStorage.getItem('dashboard_modulos_iniciales');
     if (storedIniciales) try { setModulosInicialesSet(prev => Array.from(new Set([...prev, ...JSON.parse(storedIniciales)]))); } catch (e) {}
@@ -319,9 +320,11 @@ export default function DashboardInscripciones() {
 
       const mapD = {};
       const mapP = {};
+      const mapF = {};
       const inicialesSet = new Set();
       
       const idxCodigo = headers.findIndex(h => h.includes('codigo') || h.includes('comision'));
+      const idxFamilia = headers.findIndex(h => h.includes('familia'));
       const idxActividad = headers.findIndex(h => h.includes('actividad'));
       const idxInstructor = headers.findIndex(h => h.includes('instructor') || h.includes('apellido'));
       const idxPropuesta = headers.findIndex(h => h.includes('propuesta'));
@@ -346,6 +349,12 @@ export default function DashboardInscripciones() {
             if (prop && prop !== 'Sin Propuesta') {
               mapP[actClean] = prop;
             }
+          }
+
+          // Familia Profesional
+          if (idxFamilia !== -1 && row[idxFamilia]) {
+             const fam = row[idxFamilia].trim();
+             if (fam) mapF[actClean] = fam;
           }
 
           // Docente
@@ -382,6 +391,12 @@ export default function DashboardInscripciones() {
       setPropuestasMap(prev => {
         const merged = { ...prev, ...mapP };
         if (saveLocal) localStorage.setItem('dashboard_propuestas_map', JSON.stringify(merged));
+        return merged;
+      });
+
+      setFamiliasMap(prev => {
+        const merged = { ...prev, ...mapF };
+        if (saveLocal) localStorage.setItem('dashboard_familias_map', JSON.stringify(merged));
         return merged;
       });
 
@@ -435,8 +450,8 @@ export default function DashboardInscripciones() {
       }
     } 
     
-    // Prioridad 3: Datos por defecto en la constante DEFAULT_INSCRIPCIONES_CSV
-    processCSV(DEFAULT_INSCRIPCIONES_CSV, true, false, 'Inscripciones Predefinidas');
+    // Prioridad 3: Datos por defecto
+    processCSV(getDefaultInscripciones(), true, false, 'Inscripciones Predefinidas');
     setIsLoading(false);
   };
 
@@ -513,10 +528,11 @@ export default function DashboardInscripciones() {
       const docente = docentesMap[docenteKey] || 'Sin Asignar';
       
       const propuesta = propuestasMap[actClean] || 'Sin Propuesta';
+      const familia = familiasMap[actClean] || 'Sin Familia';
       
-      return { ...item, docente, propuesta };
+      return { ...item, docente, propuesta, familia };
     });
-  }, [rawData, docentesMap, propuestasMap]);
+  }, [rawData, docentesMap, propuestasMap, familiasMap]);
 
   // --- Listas completas para los Selects ---
   const uniqueDocentes = useMemo(() => {
@@ -531,12 +547,19 @@ export default function DashboardInscripciones() {
     return [...new Set([...fromData, ...fromMap].filter(p => p !== 'Sin Propuesta'))].sort();
   }, [enrichedData, propuestasMap]);
 
+  const uniqueFamilias = useMemo(() => {
+    const fromData = enrichedData.map(item => item.familia);
+    const fromMap = Object.values(familiasMap);
+    return [...new Set([...fromData, ...fromMap].filter(f => f !== 'Sin Familia'))].sort();
+  }, [enrichedData, familiasMap]);
+
   const uniqueActivities = useMemo(() => [...new Set(enrichedData.map(item => item.actividadSimple))].sort(), [enrichedData]);
   const uniqueEstados = useMemo(() => [...new Set(enrichedData.map(item => item.estado ? item.estado.trim() : null).filter(Boolean))].sort(), [enrichedData]);
 
   // Filtrado final
   useEffect(() => {
     let result = enrichedData;
+    if (filterFamilia !== 'Todas') result = result.filter(item => item.familia === filterFamilia);
     if (filterTurno !== 'Todos') result = result.filter(item => item.turno === filterTurno);
     if (filterEstado !== 'Todos') result = result.filter(item => item.estado && item.estado.trim() === filterEstado);
     if (filterTipoOferta !== 'Todos') result = result.filter(item => item.tipoOferta === filterTipoOferta);
@@ -549,7 +572,7 @@ export default function DashboardInscripciones() {
       result = result.filter(item => (item.alumno && item.alumno.toLowerCase().includes(term)) || (item.dni && item.dni.includes(term)));
     }
     setFilteredData(result);
-  }, [enrichedData, filterTurno, filterEstado, filterActividad, filterTipoOferta, filterDocente, filterPropuesta, searchTerm]);
+  }, [enrichedData, filterFamilia, filterTurno, filterEstado, filterActividad, filterTipoOferta, filterDocente, filterPropuesta, searchTerm]);
 
   // --- Controladores ---
   const handleManualUpload = (event) => {
@@ -574,6 +597,7 @@ export default function DashboardInscripciones() {
   };
 
   const handleClearFilters = () => {
+    setFilterFamilia('Todas');
     setFilterTurno('Todos');
     setFilterTipoOferta('Todos');
     setFilterEstado('Todos');
@@ -584,6 +608,7 @@ export default function DashboardInscripciones() {
   };
 
   const hasActiveFilters = 
+    filterFamilia !== 'Todas' ||
     filterTurno !== 'Todos' || 
     filterTipoOferta !== 'Todos' || 
     filterEstado !== 'Todos' || 
@@ -599,12 +624,14 @@ export default function DashboardInscripciones() {
       localStorage.removeItem('dashboard_last_update');
       localStorage.removeItem('dashboard_docentes_map');
       localStorage.removeItem('dashboard_propuestas_map');
+      localStorage.removeItem('dashboard_familias_map');
       localStorage.removeItem('dashboard_modulos_iniciales');
       setDocentesMap({}); 
       setPropuestasMap({});
+      setFamiliasMap({});
       setModulosInicialesSet([]);
-      if (DEFAULT_MATRIZ_CSV.trim() !== '') {
-        processMatrizCSV(DEFAULT_MATRIZ_CSV, false);
+      if (getDefaultMatriz().trim() !== '') {
+        processMatrizCSV(getDefaultMatriz(), false);
       }
       loadData(); 
     }
@@ -620,7 +647,7 @@ export default function DashboardInscripciones() {
 
   // --- FUNCIÓN DE DESCARGA CSV ---
   const handleDownloadCSV = () => {
-    const headers = ['Alumno', 'DNI', 'Turno', 'Teléfono', 'Mail', 'Estado', 'Propuesta', 'Actividad', 'Docente'];
+    const headers = ['Alumno', 'DNI', 'Turno', 'Teléfono', 'Mail', 'Estado', 'Familia', 'Propuesta', 'Actividad', 'Docente'];
     
     const csvContent = [
       headers.join(';'),
@@ -631,6 +658,7 @@ export default function DashboardInscripciones() {
         `"${row.telefono || ''}"`, 
         `"${row.email || ''}"`, 
         `"${row.estado || ''}"`,
+        `"${row.familia || ''}"`,
         `"${row.propuesta || ''}"`,
         `"${row.actividad || ''}"`, 
         `"${row.docente || ''}"`
@@ -675,7 +703,13 @@ export default function DashboardInscripciones() {
       if (porGenero[item.genero] !== undefined) porGenero[item.genero]++; else porGenero.Desconocido++;
       
       const act = item.actividadSimple;
-      porActividad[act] = (porActividad[act] || 0) + 1;
+      if (!porActividad[act]) {
+        porActividad[act] = {
+          count: 0,
+          propuesta: item.propuesta || 'Sin Propuesta'
+        };
+      }
+      porActividad[act].count++;
 
       if (item.propuesta && item.propuesta !== 'Sin Propuesta') {
         porPropuesta[item.propuesta] = (porPropuesta[item.propuesta] || 0) + 1;
@@ -718,7 +752,8 @@ export default function DashboardInscripciones() {
       chartDataActividad: Object.keys(porActividad).map(key => ({ 
         name: key.length > 35 ? key.substring(0, 35) + '...' : key, 
         fullName: key, 
-        value: porActividad[key] 
+        value: porActividad[key].count,
+        propuesta: porActividad[key].propuesta
       })).sort((a, b) => b.value - a.value),
       chartDataPropuesta: Object.keys(porPropuesta).map(key => ({ 
         name: key.length > 35 ? key.substring(0, 35) + '...' : key, 
@@ -737,14 +772,28 @@ export default function DashboardInscripciones() {
   const fullPropChartHeight = Math.max(400, stats.chartDataPropuesta.length * 40);
   const fullInicialesChartHeight = Math.max(400, stats.chartDataIniciales.length * 40);
 
-  // Construir lista de etiquetas de filtros activos para la web
   const activeFiltersLabels = [];
+  if (filterFamilia !== 'Todas') activeFiltersLabels.push(`Familia: ${filterFamilia}`);
   if (filterTurno !== 'Todos') activeFiltersLabels.push(`Turno: ${filterTurno}`);
   if (filterPropuesta !== 'Todas') activeFiltersLabels.push(`Propuesta: ${filterPropuesta}`);
   if (filterActividad !== 'Todas') activeFiltersLabels.push(`Actividad: ${filterActividad}`);
   if (filterDocente !== 'Todos') activeFiltersLabels.push(`Docente: ${filterDocente}`);
   if (filterEstado !== 'Todos') activeFiltersLabels.push(`Estado: ${filterEstado}`);
   if (filterTipoOferta !== 'Todos') activeFiltersLabels.push(`Oferta: ${filterTipoOferta}`);
+
+  // Paleta de colores temáticos para los chips de familias profesionales
+  const getFamilyColor = (familia) => {
+    const textStr = familia.toLowerCase();
+    if (textStr.includes('estética')) return 'bg-pink-100 text-pink-700 border-pink-300 ring-pink-400 hover:bg-pink-200 hover:border-pink-400';
+    if (textStr.includes('mecánica') || textStr.includes('motor')) return 'bg-orange-100 text-orange-700 border-orange-300 ring-orange-400 hover:bg-orange-200 hover:border-orange-400';
+    if (textStr.includes('informática') || textStr.includes('dato') || textStr.includes('program')) return 'bg-cyan-100 text-cyan-700 border-cyan-300 ring-cyan-400 hover:bg-cyan-200 hover:border-cyan-400';
+    if (textStr.includes('energía') || textStr.includes('electri')) return 'bg-amber-100 text-amber-700 border-amber-300 ring-amber-400 hover:bg-amber-200 hover:border-amber-400';
+    if (textStr.includes('administración') || textStr.includes('contable') || textStr.includes('sueldo')) return 'bg-emerald-100 text-emerald-700 border-emerald-300 ring-emerald-400 hover:bg-emerald-200 hover:border-emerald-400';
+    if (textStr.includes('carpintería') || textStr.includes('mueble') || textStr.includes('madera')) return 'bg-amber-700 text-white border-amber-800 ring-amber-900 hover:bg-amber-800 hover:border-amber-900';
+    if (textStr.includes('fotograf') || textStr.includes('imagen')) return 'bg-purple-100 text-purple-700 border-purple-300 ring-purple-400 hover:bg-purple-200 hover:border-purple-400';
+    
+    return 'bg-blue-100 text-blue-700 border-blue-300 ring-blue-400 hover:bg-blue-200 hover:border-blue-400';
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 p-4 md:p-8 print:bg-white print:p-0">
@@ -754,7 +803,7 @@ export default function DashboardInscripciones() {
         <div>
           <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
             <Users className="w-8 h-8 text-blue-600 print:hidden" />
-            <span><span className="text-blue-600 print:text-black">CFP N°1 -</span> Inscripciones 2° Cuatrimestre - 2026</span>
+            <span><span className="text-blue-600 print:text-black">CFP N°1 -</span> Tablero de Inscripciones</span>
           </h1>
           <div className="text-slate-500 mt-2 print:hidden flex items-center gap-3 flex-wrap">
             <span>Análisis Demográfico y de Ofertas</span>
@@ -924,11 +973,41 @@ export default function DashboardInscripciones() {
             
           </div>
 
-          {/* Fila 2: Selectores Secundarios */}
-          <div className="flex flex-col md:flex-row gap-3 items-center flex-wrap pt-3 border-t border-slate-100">
+          {/* Fila 2: Chips / Píldoras de Familias Profesionales */}
+          <div className="w-full mt-4 border-t border-slate-100 pt-4">
+             <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase">Filtrar por Familia Profesional</label>
+             <div className="flex flex-wrap gap-2">
+                <button 
+                   onClick={() => setFilterFamilia('Todas')}
+                   className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${filterFamilia === 'Todas' ? 'bg-slate-800 text-white border-slate-900 shadow-md ring-1 ring-slate-900' : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200 hover:border-slate-300'}`}
+                >
+                   Todas
+                </button>
+                {uniqueFamilias.map(fam => {
+                   const colorClasses = getFamilyColor(fam);
+                   const isSelected = filterFamilia === fam;
+                   return (
+                      <button
+                         key={fam}
+                         onClick={() => setFilterFamilia(fam)}
+                         className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                           isSelected 
+                             ? `${colorClasses} ring-2 shadow-md transform scale-[1.02]` 
+                             : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-slate-50'
+                         }`}
+                      >
+                         {fam}
+                      </button>
+                   );
+                })}
+             </div>
+          </div>
+
+          {/* Fila 3: Selectores Secundarios */}
+          <div className="flex flex-col md:flex-row gap-3 items-center flex-wrap pt-4 mt-2 border-t border-slate-100">
             <div className="flex items-center gap-2 text-slate-500 shrink-0 mr-2">
               <Filter className="w-4 h-4" />
-              <span className="font-bold text-sm uppercase tracking-wider">Filtros:</span>
+              <span className="font-bold text-sm uppercase tracking-wider">Filtros Avanzados:</span>
             </div>
             
             <select value={filterTipoOferta} onChange={(e) => setFilterTipoOferta(e.target.value)} className={`px-3 py-2 border rounded-lg text-sm outline-none transition-colors cursor-pointer ${filterTipoOferta !== 'Todos' ? 'bg-purple-50 border-purple-300 text-purple-800 font-medium' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
@@ -963,8 +1042,6 @@ export default function DashboardInscripciones() {
             
           </div>
         </Card>
-        {/* ========================================================= */}
-
 
         {/* Gráficos de Torta */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -1032,10 +1109,20 @@ export default function DashboardInscripciones() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
+                  {}
                   {stats.chartDataActividad.slice(0, 5).map((act, index) => (
                     <tr key={index} className="hover:bg-slate-50 transition-colors">
                       <td className="p-3 text-center font-bold text-slate-400">{index + 1}</td>
-                      <td className="p-3 font-medium text-slate-700" title={act.fullName}>{act.name}</td>
+                      <td className="p-3 text-slate-700">
+                        <div className="font-semibold" title={act.fullName}>{act.name}</div>
+                        {act.propuesta && act.propuesta !== 'Sin Propuesta' && (
+                          <div className="mt-1">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100 uppercase tracking-wide">
+                              {act.propuesta}
+                            </span>
+                          </div>
+                        )}
+                      </td>
                       <td className="p-3 text-right">
                         <span className="inline-block bg-blue-100 text-blue-800 py-1 px-3 rounded-full font-bold">
                           {act.value}
@@ -1135,6 +1222,7 @@ export default function DashboardInscripciones() {
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis type="number" />
                 <YAxis dataKey="name" type="category" width={220} tick={{fontSize: 12, fill: '#475569'}} />
+                {}
                 <Tooltip 
                   cursor={{fill: '#f1f5f9'}}
                   content={({ active, payload }) => {
@@ -1143,6 +1231,11 @@ export default function DashboardInscripciones() {
                       return (
                         <div className="bg-white p-3 border border-slate-200 rounded-lg shadow-xl max-w-sm">
                           <p className="font-bold text-slate-800 text-sm mb-1">{data.fullName}</p>
+                          {data.propuesta && data.propuesta !== 'Sin Propuesta' && (
+                            <p className="text-xs text-indigo-600 font-semibold mb-1.5 bg-indigo-50 px-2 py-0.5 rounded inline-block">
+                              Propuesta: {data.propuesta}
+                            </p>
+                          )}
                           <p className="text-blue-600 font-semibold text-sm">Total Inscriptos: {data.value}</p>
                         </div>
                       );
@@ -1256,6 +1349,7 @@ export default function DashboardInscripciones() {
             {/* SECCIÓN EXCLUSIVA PARA LA IMPRESIÓN */}
             <div className="hidden print:block text-sm text-black border-b-2 border-slate-800 pb-3 mt-2 w-full">
                <div className="grid grid-cols-1 gap-1.5 leading-relaxed">
+                  <p><span className="font-bold">Familia Profesional:</span> {filterFamilia}</p>
                   <p><span className="font-bold">Propuesta Formativa:</span> {filterPropuesta}</p>
                   <p><span className="font-bold">Actividad:</span> {filterActividad}</p>
                   <p><span className="font-bold">Docente a cargo:</span> {filterDocente}</p>
@@ -1293,6 +1387,7 @@ export default function DashboardInscripciones() {
               <tr>
                 <th className="p-4 print:py-2 print:px-1">Alumno</th>
                 <th className="p-4 print:py-2 print:px-1">DNI</th>
+                <th className="p-4 print:py-2 print:px-1">Familia Prof.</th>
                 <th className="p-4 print:py-2 print:px-1">Turno</th>
                 <th className="p-4 print:py-2 print:px-1">Teléfono</th>
                 <th className="p-4 print:py-2 print:px-1">Mail</th>
@@ -1304,6 +1399,7 @@ export default function DashboardInscripciones() {
                 <tr key={i} className="hover:bg-slate-50 print:hover:bg-transparent">
                   <td className="p-4 font-medium print:py-2 print:px-1">{row.alumno}</td>
                   <td className="p-4 text-slate-500 print:text-black print:py-2 print:px-1">{row.dni}</td>
+                  <td className="p-4 print:py-2 print:px-1 text-slate-500 font-semibold text-xs">{row.familia}</td>
                   <td className="p-4 print:py-2 print:px-1"><Badge type={row.turno}>{row.turno}</Badge></td>
                   <td className="p-4 text-slate-500 print:text-black print:py-2 print:px-1">{row.telefono}</td>
                   <td className="p-4 text-slate-500 print:text-black print:py-2 print:px-1">{row.email}</td>
@@ -1318,7 +1414,7 @@ export default function DashboardInscripciones() {
         </div>
       </Card>
       
-      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.20 - Matriz Unificada</div>
+      <div className="mt-4 text-center text-xs text-slate-400 print:hidden">Sistema v1.21 - Matriz Unificada con Filtro de Familia</div>
     </div>
   );
 }
