@@ -718,7 +718,7 @@ export default function DashboardInscripciones() {
       }
 
       // Lógica para Actividades Iniciales, Cap. Laborales y Cursos
-      const isCapOrCurso = item.tipoOferta === 'Capacitación Laboral' || item.tipoOferta === 'Curso';
+      const isCapOrCurso = item.tipoOferta === 'Capacitación Laboral' || item.tipoOferta === 'Curso' || item.tipoOferta === 'Microcredencial';
       const actClean = cleanActivityName(item.actividad);
       
       // Chequeo usando el Set normalizado
