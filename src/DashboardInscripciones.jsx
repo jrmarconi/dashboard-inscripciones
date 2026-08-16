@@ -489,6 +489,7 @@ export default function DashboardInscripciones() {
         if (rawActividad.includes('(CL_')) tipoOferta = 'Capacitación Laboral';
         else if (rawActividad.includes('(CT_')) tipoOferta = 'Curso';
         else if (rawActividad.includes('(TR_')) tipoOferta = 'Trayecto';
+        else if (rawActividad.includes('(MC_')) tipoOferta = 'Microcredencial';
 
         item.genero = inferGender(item.alumno);
         item.tipoOferta = tipoOferta;
