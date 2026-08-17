@@ -489,6 +489,7 @@ export default function DashboardInscripciones() {
         if (rawActividad.includes('(CL_')) tipoOferta = 'Capacitación Laboral';
         else if (rawActividad.includes('(CT_')) tipoOferta = 'Curso';
         else if (rawActividad.includes('(TR_')) tipoOferta = 'Trayecto';
+		else if (rawActividad.includes('(MC_')) tipoOferta = 'Microcredencial';
 
         item.genero = inferGender(item.alumno);
         item.tipoOferta = tipoOferta;
@@ -1012,7 +1013,7 @@ export default function DashboardInscripciones() {
             </div>
             
             <select value={filterTipoOferta} onChange={(e) => setFilterTipoOferta(e.target.value)} className={`px-3 py-2 border rounded-lg text-sm outline-none transition-colors cursor-pointer ${filterTipoOferta !== 'Todos' ? 'bg-purple-50 border-purple-300 text-purple-800 font-medium' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
-              <option value="Todos">Oferta: Todas</option><option value="Capacitación Laboral">Cap. Laboral</option><option value="Curso">Curso</option><option value="Trayecto">Trayecto</option>
+              <option value="Todos">Oferta: Todas</option><option value="Capacitación Laboral">Cap. Laboral</option><option value="Curso">Curso</option><option value="Trayecto">Trayecto</option><option value="Microcredencial">Microcredencial</option>
             </select>
             
             <select value={filterTurno} onChange={(e) => setFilterTurno(e.target.value)} className={`px-3 py-2 border rounded-lg text-sm outline-none transition-colors cursor-pointer ${filterTurno !== 'Todos' ? 'bg-amber-50 border-amber-300 text-amber-800 font-medium' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
