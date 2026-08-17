@@ -688,7 +688,87 @@ export default function DashboardInscripciones() {
       </text>
     );
   };
+export default function PanelGraficosSecundarios({ data }) {
+  // Estado único para controlar la visibilidad del panel completo (oculto por defecto)
+  const [showPanel, setShowPanel] = useState(false);
 
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      
+      {/* ENCABEZADO DEL PANEL / BOTÓN DE ALTERNANCIA */}
+      <div className="p-4 flex items-center justify-between bg-slate-50/50">
+        <div className="flex items-center gap-2">
+          <PieChart className="w-5 h-5 text-purple-600" />
+          <h3 className="text-sm font-bold text-slate-800">
+            Métricas Complementarias (Género, Turno y Estado)
+          </h3>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowPanel((prev) => !prev)}
+          className="flex items-center gap-1.5 text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-lg border border-purple-200 transition-colors"
+        >
+          {showPanel ? (
+            <>
+              <EyeOff className="w-4 h-4" />
+              Ocultar gráficos
+            </>
+          ) : (
+            <>
+              <Eye className="w-4 h-4" />
+              Mostrar gráficos
+            </>
+          )}
+        </button>
+      </div>
+
+      {/* CONTENEDOR DESPLEGABLE CON LOS TRES GRÁFICOS */}
+      {showPanel && (
+        <div className="p-4 border-t border-slate-200 bg-white grid grid-cols-1 md:grid-cols-3 gap-4 transition-all">
+          
+          {/* 1. Gráfico de Género */}
+          <div className="p-4 rounded-lg bg-slate-50 border border-slate-100 space-y-2">
+            <h4 className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <Users className="w-4 h-4 text-purple-600" />
+              Distribución por Género
+            </h4>
+            <div className="h-48 flex items-center justify-center border border-dashed border-slate-200 rounded-md bg-white">
+              {/* <GraficoGenero data={data} /> */}
+              <span className="text-xs text-slate-400">[ Gráfico de Género ]</span>
+            </div>
+          </div>
+
+          {/* 2. Gráfico de Turno */}
+          <div className="p-4 rounded-lg bg-slate-50 border border-slate-100 space-y-2">
+            <h4 className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <Clock className="w-4 h-4 text-purple-600" />
+              Distribución por Turno
+            </h4>
+            <div className="h-48 flex items-center justify-center border border-dashed border-slate-200 rounded-md bg-white">
+              {/* <GraficoTurno data={data} /> */}
+              <span className="text-xs text-slate-400">[ Gráfico de Turno ]</span>
+            </div>
+          </div>
+
+          {/* 3. Gráfico de Estado */}
+          <div className="p-4 rounded-lg bg-slate-50 border border-slate-100 space-y-2">
+            <h4 className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+              <FileCheck className="w-4 h-4 text-purple-600" />
+              Estado de Inscripciones
+            </h4>
+            <div className="h-48 flex items-center justify-center border border-dashed border-slate-200 rounded-md bg-white">
+              {/* <GraficoEstado data={data} /> */}
+              <span className="text-xs text-slate-400">[ Gráfico de Estado ]</span>
+            </div>
+          </div>
+
+        </div>
+      )}
+
+    </div>
+  );
+}
   const stats = useMemo(() => {
     let totalIniciales = 0;
     const porTurno = { TM: 0, TT: 0, TN: 0, Desconocido: 0 };
