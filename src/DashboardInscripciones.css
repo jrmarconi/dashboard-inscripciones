@@ -1,0 +1,58 @@
+/* Estilos extraídos e integrados */
+.btn-enlace-reporte {
+  background: none;
+  border: none;
+  color: #2563eb;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.oculto-en-pantalla {
+  display: none;
+}
+
+/* Reglas de impresión */
+@media print {
+  .no-print, 
+  .oculto-en-pantalla {
+    display: none !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .seccion-reporte, 
+  .seccion-reporte * {
+    visibility: visible;
+    display: revert !important;
+  }
+
+  .seccion-reporte {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    color: #000;
+    background: #fff;
+    padding: 20px;
+  }
+
+  .tabla-reporte {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+
+  .tabla-reporte th, 
+  .tabla-reporte td {
+    border: 1px solid #000;
+    padding: 8px;
+    text-align: left;
+  }
+}
