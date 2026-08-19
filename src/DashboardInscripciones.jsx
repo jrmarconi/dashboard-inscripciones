@@ -6,9 +6,9 @@ import {
 import { 
   Upload, Users, Filter, Search, 
   UserCheck, Trash2, Download, Printer, RefreshCw, AlertTriangle,
-  Sun, Moon, Sunset, BookOpen, Award, X, BarChart as BarChartIcon, Target
+  Sun, Moon, Sunset, BookOpen, Award, X, BarChart as BarChartIcon, Target, ArrowLeft, FileText
 } from 'lucide-react';
-
+import 'DashboardInscripciones.css';
 // ==============================================================================
 // CONFIGURACIÓN DE ORIGEN DE DATOS AUTOMÁTICO (NUBE)
 // Deja esto vacío ("") si vas a usar el CSV predefinido de abajo.
@@ -805,7 +805,7 @@ export default function DashboardInscripciones() {
         <div>
           <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-2">
             <Users className="w-8 h-8 text-blue-600 print:hidden" />
-            <span><span className="text-blue-600 print:text-black">CFP N°1 -</span> Inscripciones 2°C - 2026A</span>
+            <span><span className="text-blue-600 print:text-black">CFP N°1 -</span> Inscripciones 2°C - 2026</span>
           </h1>
           <div className="text-slate-500 mt-2 print:hidden flex items-center gap-3 flex-wrap">
             <span>Análisis Demográfico y de Ofertas</span>
