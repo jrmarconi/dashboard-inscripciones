@@ -8,7 +8,7 @@ import {
   UserCheck, Trash2, Download, Printer, RefreshCw, AlertTriangle,
   Sun, Moon, Sunset, BookOpen, Award, X, BarChart as BarChartIcon, Target, ArrowLeft, FileText
 } from 'lucide-react';
-import './DashboardInscripciones.css';
+import 'DashboardInscripciones.css';
 
 const DATA_SOURCE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT-4w1Lcx6FefPFWYVxlU_pMxGx5j_r4xENfPmhuiL2Y6qLRggLixxcHFudlXl4BZlBrELxln97B7Hu/pub?gid=1856440278&single=true&output=csv"; 
 
