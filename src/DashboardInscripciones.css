@@ -1,12 +1,12 @@
 /* Estilos extraídos e integrados */
 .btn-enlace-reporte {
-  background: green;
+  background: none;
   border: none;
   color: #2563eb;
   text-decoration: underline;
   cursor: pointer;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 1600;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
