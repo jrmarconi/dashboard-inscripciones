@@ -56,3 +56,55 @@
     text-align: left;
   }
 }
+/* Botón estilo enlace en pantalla */[cite: 4]
+.btn-enlace-reporte {
+  background: none;[cite: 4]
+  border: none;[cite: 4]
+  color: #0066cc;[cite: 4]
+  text-decoration: underline;[cite: 4]
+  cursor: pointer;[cite: 4]
+  font-size: 0.95rem;[cite: 4]
+  margin-left: 15px;[cite: 4]
+}
+
+/* Ocultar reporte mientras estés navegando el dashboard regular */[cite: 4]
+.oculto-en-pantalla {
+  display: none;[cite: 4]
+}
+
+/* --- REGLAS DE IMPRESIÓN --- */[cite: 4]
+@media print {
+  /* Oculta los controles y el dashboard regular */[cite: 4]
+  .no-print, .oculto-en-pantalla {
+    display: none !important;[cite: 4]
+  }
+
+  body * {
+    visibility: hidden;[cite: 4]
+  }
+
+  /* Muestra solo la tabla del reporte */[cite: 4]
+  .seccion-reporte, .seccion-reporte * {
+    visibility: visible;[cite: 4]
+    display: revert !important;[cite: 4]
+  }
+
+  .seccion-reporte {
+    position: absolute;[cite: 4]
+    left: 0;[cite: 4]
+    top: 0;[cite: 4]
+    width: 100%;[cite: 4]
+  }
+
+  .tabla-reporte {
+    width: 100%;[cite: 4]
+    border-collapse: collapse;[cite: 4]
+    margin-top: 15px;[cite: 4]
+  }
+
+  .tabla-reporte th, .tabla-reporte td {
+    border: 1px solid #000;[cite: 4]
+    padding: 8px;[cite: 4]
+    text-align: left;[cite: 4]
+  }
+}
