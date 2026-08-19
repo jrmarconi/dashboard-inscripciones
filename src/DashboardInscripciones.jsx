@@ -8,7 +8,7 @@ import {
   UserCheck, Trash2, Download, Printer, RefreshCw, AlertTriangle,
   Sun, Moon, Sunset, BookOpen, Award, X, BarChart as BarChartIcon, Target, ArrowLeft, FileText
 } from 'lucide-react';
-import 'DashboardInscripciones.css';
+
 // ==============================================================================
 // CONFIGURACIÓN DE ORIGEN DE DATOS AUTOMÁTICO (NUBE)
 // Deja esto vacío ("") si vas a usar el CSV predefinido de abajo.
